@@ -12,4 +12,4 @@ cd ..
 rm -rf build
 
 # run
-#./bin/main
+./bin/main
