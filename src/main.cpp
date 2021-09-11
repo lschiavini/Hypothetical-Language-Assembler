@@ -11,7 +11,8 @@ int main(int argc, char ** argv)
     } catch(std::string error) {
         std::cout << error << std::endl;
     }
+
     
-    std::cout << "Hello World!";
+    std::cout << "End of Show"<< std::endl;
     return 0;
 }
