@@ -1,7 +1,3 @@
-#clear terminal
-clear
-rm ./bin/main
-
 # build steps
 mkdir build
 cd build
@@ -10,6 +6,6 @@ cmake ..
 make
 cd ..
 rm -rf build
-
 # run
-#./bin/main
+./bin/main 
+

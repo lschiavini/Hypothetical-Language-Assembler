@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
 
-project(libExampleA)
+project(args)
 
-add_library( libExampleA STATIC ./src/libExampleA.cpp )
+add_library( args STATIC ./src/args.cpp )
