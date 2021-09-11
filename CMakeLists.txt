@@ -5,7 +5,7 @@ project( Hypothetical-Language-Assembler VERSION 0.1)
 # flags
 
 # include files
-include_directories( ./include ./src ./lib/libExampleA/include ./lib/libExampleB/include )
+include_directories( include lib/args/include lib/libExampleB/include )
 include(CTest)
 enable_testing()
 set (CMAKE_CXX_STANDARD 11)
@@ -18,8 +18,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}./../bin)
 add_executable( main ./src/main.cpp )
 
 # 3rd party lib
-add_subdirectory( ./lib/libExampleA )
-target_link_libraries( main libExampleA )
+add_subdirectory( ./lib/args )
+target_link_libraries( main args )
 
 # 3rd party lib
 add_subdirectory( ./lib/libExampleB )
