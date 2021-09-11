@@ -1,6 +1,3 @@
-#deletePrevious compilation
-rm -rf bin
-
 # build steps
 mkdir build
 cd build
