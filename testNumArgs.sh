@@ -7,5 +7,5 @@ make
 cd ..
 rm -rf build
 # run
-./bin/main 
+./bin/main ./filetest.asm
 
