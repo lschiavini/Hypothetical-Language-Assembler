@@ -12,4 +12,4 @@ cd ..
 rm -rf build
 
 # run
-./bin/main ./tests/bin.asm
+./bin/main ./tests/binComments.asm
