@@ -1,6 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include <args.h>
+#include <utils.h>
+#include <assembler.h>
 
 int main(int argc, char ** argv)
 {
@@ -12,7 +14,11 @@ int main(int argc, char ** argv)
         std::cout << error << std::endl;
     }
 
+    printFile(&sourceCode);
+    Assembler myAssembler;
+
     
+
     std::cout << "End of Show"<< std::endl;
     return 0;
 }
