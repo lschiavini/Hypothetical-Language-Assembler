@@ -4,8 +4,15 @@ project( Hypothetical-Language-Assembler VERSION 0.1)
 
 # flags
 
+
+# variables
+
+set( argsLib "lib/args/include")
+set( assemblerErrorsLib "lib/assemblerErrors/include")
+set( assemblerLib "lib/assembler/include")
+
 # include files
-include_directories( include lib/args/include lib/libExampleB/include )
+include_directories( include ${assemblerLib} ${argsLib} ${assemblerErrorsLib} )
 include(CTest)
 enable_testing()
 set (CMAKE_CXX_STANDARD 11)
@@ -15,17 +22,19 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}./../bin)
 
 
 # target
-add_executable( main ./src/main.cpp )
+add_executable( main ./src/main.cpp ./src/utils.cpp )
 
 # 3rd party lib
 add_subdirectory( ./lib/args )
 target_link_libraries( main args )
 
 # 3rd party lib
-add_subdirectory( ./lib/libExampleB )
-target_link_libraries( main libExampleB )
+add_subdirectory( ./lib/assemblerErrors )
+target_link_libraries( main assemblerErrors )
 
+# 3rd party lib
+add_subdirectory( ./lib/assembler )
+target_link_libraries( main assembler )
 
-add_library(staticalLib STATIC IMPORTED)
-set_property(TARGET staticalLib PROPERTY IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/lib/staticalLib/libStaticalLib.a)
-target_link_libraries( main staticalLib )
+# Statical libs
+add_library (utils STATIC src/utils.cpp)
