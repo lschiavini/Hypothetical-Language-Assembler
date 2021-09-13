@@ -42,6 +42,7 @@ class SymbolTable {
             ListOfStrings newListOfUse);
         bool isDefined(std::string label);
         std::uint16_t getsAddressValue(std::string label);
+        ListOfStrings getsUsedPositions(std::string label);
 };
 
 #endif

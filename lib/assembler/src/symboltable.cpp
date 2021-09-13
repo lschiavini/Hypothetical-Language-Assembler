@@ -137,3 +137,10 @@ std::uint16_t SymbolTable::getsAddressValue(std::string label){
     bool addressValue = std::get<0>(currentRow);
     return addressValue;
 }
+
+
+ListOfStrings SymbolTable::getsUsedPositions(std::string label){
+    Row currentRow = this->table[label];
+    ListOfStrings usedPositions = std::get<2>(currentRow);
+    return usedPositions;
+}
