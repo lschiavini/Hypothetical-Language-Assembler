@@ -55,7 +55,7 @@ class Assembler {
             {"SPACE", 1}, // TODO: CHANGE THIS
         };  
 
-        SymbolTable mySymbolTable;
+        SymbolTable symbolTable;
 
         std::fstream * sourceCode;
         std::fstream * assemblingCode;

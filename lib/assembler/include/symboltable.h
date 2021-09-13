@@ -19,13 +19,16 @@ typedef std::tuple< uint16_t, bool, ListOfStrings > Row;
 typedef std::map<std::string, Row> Table;
 
 class SymbolTable {
+    private:
+      void MOCKSymbolTable();
+      void printTable();
+      Table::iterator getPositions(std::string label);
+      std::string getListAsString(ListOfStrings vectorList);
     public:
         Table table;
         ~SymbolTable();
         SymbolTable();
-        void printTable();
         bool contains(std::string label);
-        Table::iterator getPositions(std::string label);
         void adds(
             std::string label,
             uint16_t value, 
