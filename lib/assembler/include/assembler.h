@@ -9,6 +9,7 @@
 
 typedef std::vector< std::string> ListOfStrings;
 typedef std::vector< std::tuple<uint16_t, std::vector< std::string>> > FileLines;
+typedef std::map<std::string, uint16_t> InstructionToNumber;
 
 class Assembler {
     public:
@@ -16,8 +17,7 @@ class Assembler {
         ~Assembler();
         void assembleFile();
     private:
-
-        const std::map<std::string, uint8_t> instructionToOpcode = {
+        InstructionToNumber instructionToOpcode = {
             {"SPACE", 0},
             {"ADD", 1},
             {"SUB", 2},
@@ -34,7 +34,7 @@ class Assembler {
             {"OUTPUT", 13},
             {"STOP", 14}
         };
-        const std::map<std::string, uint8_t> instructionToSizeInMemory = {
+        InstructionToNumber instructToSizeInMemory = {
             {"ADD", 2},
             {"SUB", 2},
             {"MULT", 2},
@@ -49,20 +49,31 @@ class Assembler {
             {"INPUT", 2},
             {"OUTPUT", 2},
             {"STOP", 1},
+            {"CONST", 1}
         };  
             const std::map<std::string, uint8_t> dataToSizeInMemory = {
-            {"CONST", 1},
             {"SPACE", 1}, // TODO: CHANGE THIS
         };  
+
 
         SymbolTable symbolTable;
 
         std::fstream * sourceCode;
-        std::fstream * assemblingCode;
+        std::fstream * assemblingCode; // TODO: DO I NEED *assemblingCode?
         std::fstream * assembledCode;
+
+
+        std::uint16_t currentLine = 0;
+        uint16_t currentAddress = 0;
+        std::string currentToken;
 
         std::string fileName = "binComments.asm";
         
+        // TESTING
+        void printsMaps();
+        // END OF TESTING
+
+
         void onePassAlgorithm();
         bool isEOF();
         bool isComment();

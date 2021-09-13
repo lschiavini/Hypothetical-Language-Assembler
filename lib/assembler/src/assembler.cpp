@@ -7,30 +7,58 @@ Assembler::~Assembler(){}
 Assembler::Assembler(std::fstream *source, std::string fileName){
     this->sourceCode = source;
     this->fileName = fileName;
+    // this->printsMaps();
     std::cout << "Assembler Set"<< std::endl;
 }
+
+void Assembler::printsMaps() {
+    InstructionToNumber::iterator iteratorMap;
+    std::cout << "__________INSTRUCTION TO OPCODE___________"<<std::endl;
+    for(
+        iteratorMap = this->instructionToOpcode.begin(); 
+        iteratorMap != this->instructionToOpcode.end(); 
+        ++iteratorMap 
+    )
+    {
+        std::cout << iteratorMap->first << "\t| " 
+        <<  iteratorMap->second << std::endl;
+    } 
+    std::cout << "_____________________"<<std::endl;
+
+
+    std::cout << "__________INSTRUCTION TO SIZE IN MEMORY___________"<<std::endl;
+    for(
+        iteratorMap = this->instructToSizeInMemory.begin(); 
+        iteratorMap != this->instructToSizeInMemory.end(); 
+        ++iteratorMap 
+    )
+    {
+        std::cout << iteratorMap->first << "\t| " 
+        <<  iteratorMap->second << std::endl;
+    } 
+    std::cout << "_____________________"<<std::endl;
+
+}
+
+
 void Assembler::onePassAlgorithm(){
-    std::string currentToken;
-    std::uint16_t currentLine;
 
     uint16_t position = 0;
-    uint16_t currentAddress = 0;
-
     std::string label;
-    uint16_t value;
+    uint16_t addressValue;
     bool setDefined; 
     ListOfStrings listOfUse;
 
-    currentToken = this->readToken();
-    bool isDefined = this->symbolTable.isDefined(label);
-    bool isDefinition = this->isDefinition(label);
+    this->currentToken = this->readToken();
+    bool isDefined = this->symbolTable.isDefined(this->currentToken);
+    bool isDefinition = this->isDefinition(this->currentToken);
 
     while( !this->isEOF() ) {
         if( isDefined && isDefinition ) {
             throw ("Semantic Exception at line %d", currentLine);
         }
-        if(!this->symbolTable.contains(currentToken)) {
-            this->symbolTable.adds(label, value, isDefined, listOfUse);
+        if(!this->symbolTable.contains(this->currentToken)) {
+            this->symbolTable.adds(label, addressValue, isDefined, listOfUse);
         }
         if(isDefined) {
             std::uint16_t addressValue = this->symbolTable.getsAddressValue(label);
@@ -39,8 +67,11 @@ void Assembler::onePassAlgorithm(){
             setDefined = true;
             updatesAllUsedPositions();
         } else {
-            addsToUsedPosition(label, currentAddress);
+            addsToUsedPosition(label, this->currentAddress);
         }
+        this->currentLine++;
+        this->currentAddress += this->instructToSizeInMemory[label];
+        this->currentToken = this->readToken();
     }
 }
 
@@ -49,8 +80,7 @@ bool Assembler::isDefinition(std::string token){
 }
 
 bool Assembler::isEOF() {
-    // TODO isEOF
-    return true;
+    return this->sourceCode->eof();
 }
 
 std::string Assembler::readToken() {
