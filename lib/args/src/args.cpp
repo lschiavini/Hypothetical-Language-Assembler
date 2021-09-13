@@ -6,6 +6,10 @@
 Args::~Args(){}
 Args::Args(){}
 
+std::string Args::getFileName() {
+    return this->fileName;
+}
+
 void Args::checkArgsForErrors(std::fstream *source, int argc, char ** argv) {
     if(argc == NULL) throw "nullPointer";
     std::fstream* sourceCodeContains = source;
@@ -17,6 +21,7 @@ void Args::checkArgsForErrors(std::fstream *source, int argc, char ** argv) {
     } else
     {
         std::string fileName(argv[1]);
+        this->fileName = fileName; 
         if (fileName.substr(fileName.find_last_of(".") + 1) != "asm")
         {
             error = "Only accepts .asm files.";
