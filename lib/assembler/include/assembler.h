@@ -65,7 +65,7 @@ class Assembler {
 
         std::uint16_t currentLine = 0;
         uint16_t currentAddress = 0;
-        std::string currentToken;
+        std::string currentToken = "";
 
         std::string fileName = "binComments.asm";
         
@@ -80,7 +80,7 @@ class Assembler {
         void writeAssembledFile();
         
         // TOKEN
-        std::string readToken();
+        void readToken();
         std::string readUntilEndToken(); 
         bool isInstruction(std::string token);
         std::string getOpCode(std::string token);

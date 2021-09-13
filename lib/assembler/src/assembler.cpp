@@ -49,11 +49,14 @@ void Assembler::onePassAlgorithm(){
     bool setDefined; 
     ListOfStrings listOfUse;
 
-    this->currentToken = this->readToken();
+    this->readToken();
+    
     bool isDefined = this->symbolTable.isDefined(this->currentToken);
     bool isDefinition = this->isDefinition(this->currentToken);
 
     while( !this->isEOF() ) {
+
+        
         if( isDefined && isDefinition ) {
             throw ("Semantic Exception at line %d", currentLine);
         }
@@ -69,9 +72,11 @@ void Assembler::onePassAlgorithm(){
         } else {
             addsToUsedPosition(label, this->currentAddress);
         }
+
+        
         this->currentLine++;
         this->currentAddress += this->instructToSizeInMemory[label];
-        this->currentToken = this->readToken();
+        this->readToken();
     }
 }
 
@@ -83,9 +88,48 @@ bool Assembler::isEOF() {
     return this->sourceCode->eof();
 }
 
-std::string Assembler::readToken() {
+void Assembler::readToken() {
+    char c;
+    bool endWhile = false;
+    this->currentToken.clear();
+    std::string currentChar;
+    while(!endWhile){
+        this->sourceCode->get(c);
+        endWhile = c == ':' 
+        || c == ' ' 
+        || c == ';'
+        || c == ','
+        || c == '\n';
+
+        if(c == ':') {
+            
+        } 
+        else if(c == ' ') {
+
+        } else if(c == '\n') {
+
+        } else if(c == ',') {
+
+        } else if(c ==  ';') {
+            std::string comment;
+            std::getline(*(this->sourceCode), comment);
+        } else if(!this->isEOF()) {
+            currentChar = ("%c", c);
+            this->currentToken += currentChar;            
+        }
+
+        if(endWhile) {
+            // this->sourceCode->unget();
+        } else if(this->isEOF()) {
+            endWhile = true;
+        }
+    }
+
+    if (!this->currentToken.empty()) {
+        std::cout << "Current Token: " << this->currentToken <<std::endl;
+    }
+    
     // TODO readToken
-    return "false";
 }
 
 void Assembler::updatesAssembledCodeAtPosition(uint16_t position, uint16_t addressValue) {
@@ -93,6 +137,7 @@ void Assembler::updatesAssembledCodeAtPosition(uint16_t position, uint16_t addre
 }
 
 void Assembler::updatesAllUsedPositions() {
+
     // TODO updatesAllUsedPositions
 }
 
