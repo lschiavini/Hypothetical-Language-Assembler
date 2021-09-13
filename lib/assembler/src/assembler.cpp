@@ -4,29 +4,85 @@
 #include <string>
 
 Assembler::~Assembler(){}
-Assembler::Assembler(std::fstream *source){
+Assembler::Assembler(std::fstream *source, std::string fileName){
     this->sourceCode = source;
+    this->fileName = fileName;
     std::cout << "Assembler Set"<< std::endl;
 }
-void Assembler::onePassAlgorithm(){}
+void Assembler::onePassAlgorithm(){
+    std::string currentToken;
+    std::uint16_t currentLine;
 
+    uint16_t position = 0;
+    uint16_t currentAddress = 0;
 
-void Assembler::removeComments() {
+    std::string label;
+    uint16_t value;
+    bool setDefined; 
+    ListOfStrings listOfUse;
 
+    SymbolTable symbolTable;
+    currentToken = this->readToken();
+    bool isDefined = symbolTable.isDefined(label);
+    bool isDefinition = symbolTable.isDefinition(label);
+
+    while( !this->isEOF() ) {
+        if( isDefined && isDefinition ) {
+            throw ("Semantic Exception at line %d", currentLine);
+        }
+        if(!symbolTable.contains(currentToken)) {
+            symbolTable.adds(label, value, isDefined, listOfUse);
+        }
+        if(isDefined) {
+            std::string addressValue = symbolTable.getsAddressValue(label);
+            this->updatesAssembledCodeAtPosition(position, addressValue);
+        } else if(isDefinition){
+            setDefined = true;
+            updatesAllUsedPositions();
+        } else {
+            addsToUsedPosition(label, currentAddress);
+        }
+    }
 }
-void Assembler::writeAssembledFile() {
-    std::string finalFileName = this->fileName.substr(0,this->fileName.find_last_of('.'))+".obj";;
 
+bool Assembler::isEOF() {
+    // TODO isEOF
+    return true;
+}
+
+std::string Assembler::readToken() {
+    // TODO readToken
+    return "false";
+}
+
+void Assembler::updatesAssembledCodeAtPosition(int position, std::string value) {
+    // TODO updatesAssembledCodeAtPosition
+}
+
+void Assembler::updatesAllUsedPositions() {
+    // TODO updatesAllUsedPositions
+}
+
+void Assembler::addsToUsedPosition(std::string label, uint16_t address) {
+    // TODO addsToUsedPosition
+}
+
+
+
+void Assembler::writeAssembledFile() {
+    std::string finalFileName = this->fileName.substr(0,this->fileName.find_last_of('.'))+".obj";
     std::fstream output;
     output.open(finalFileName,std::ios::out );
 
-    output.close();
+    //TODO writeAssembledFile
 
+    output.close();
     std::cout << "[check] .obj file written"<<std::endl;
 }
 
 void Assembler::assembleFile(){
-    writeAssembledFile();
+    this->onePassAlgorithm();
+    this->writeAssembledFile();
 }
 
 
