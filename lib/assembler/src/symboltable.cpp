@@ -9,14 +9,26 @@ SymbolTable::SymbolTable(){
 
 void SymbolTable::MOCKSymbolTable() {
     ListOfStrings list;
+    //Adds first row
     list.insert(list.begin(), {"7", "9"});
     this->adds("OLD_DATA", 2, true, list);
 
+    // erases list
     list.erase(list.begin());
     list.erase(list.begin());
 
+    // adds second row
     list.insert(list.begin(), {"11", "15"});
     this->adds("DOIS", 0, true, list);
+
+    // erases list
+    list.erase(list.begin());
+    list.erase(list.begin());
+
+    //Adds another element of usedList on first row
+    list.insert(list.begin(), {"19"});
+    this->adds("OLD_DATA", 2, true, list);
+
 }
 
 std::string SymbolTable::getListAsString(ListOfStrings vectorList) {
@@ -75,28 +87,51 @@ bool SymbolTable::contains(std::string label){
 
 Table::iterator SymbolTable::getPositions(std::string label) {
     Table::iterator position = this->table.begin(); // TODO getPositions
-
     return position;
 }
+
+ListOfStrings SymbolTable::appendToUsedList(ListOfStrings usedList, ListOfStrings newUsedItems) {
+    for (int i=0; i < newUsedItems.size(); i++ ) {
+        usedList.push_back(newUsedItems[i]);
+    }
+    return usedList;
+}
+
+void SymbolTable::updatesListOfUse(
+    std::string label,
+     uint16_t value,
+     bool isDefined,
+     ListOfStrings listOfUseItems 
+) {
+    Row rowToBeInserted;
+    Row previousRow = this->table[label];
+    ListOfStrings oldListOfUse = std::get<2>(previousRow);
+    ListOfStrings newListOfUse;
+    newListOfUse = this->appendToUsedList(oldListOfUse, listOfUseItems);
+    rowToBeInserted = make_tuple(value, isDefined, newListOfUse);
+    this->table[label] = rowToBeInserted;
+}
+
 
 void SymbolTable::adds(
     std::string label,
     uint16_t value, 
     bool isDefined, 
-    ListOfStrings listOfUse
+    ListOfStrings listOfUseItems
 ){
     Table::iterator position = this->table.begin();
-    
-    // if(this->contains(label)) { // TODO THIS IS WRONG
-    //     position = this->getPositions(label);
-    // } 
-
-    Row rowToBeInserted = make_tuple(value, isDefined, listOfUse);
-    std::pair<std::string, Row> labelAndContents(label, rowToBeInserted);
-    this->table.insert(position, labelAndContents);
+    Row rowToBeInserted;
+    if(this->contains(label)) {
+        this->updatesListOfUse(label, value, isDefined, listOfUseItems);
+    } else {
+        rowToBeInserted = make_tuple(value, isDefined, listOfUseItems);
+        std::pair<std::string, Row> labelAndContents(label, rowToBeInserted);
+        this->table.insert(position, labelAndContents);  
+    }   
 }
 
 bool SymbolTable::isDefined(std::string label){
+    Row currentRow = this->table[label];
     return false; // TODO isDefined
 }
 

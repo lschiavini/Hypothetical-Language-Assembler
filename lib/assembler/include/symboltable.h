@@ -24,6 +24,13 @@ class SymbolTable {
       void printTable();
       Table::iterator getPositions(std::string label);
       std::string getListAsString(ListOfStrings vectorList);
+      ListOfStrings appendToUsedList(ListOfStrings usedList, ListOfStrings newUsedItems);
+      void updatesListOfUse(
+          std::string label,
+          uint16_t value,
+          bool isDefined,
+          ListOfStrings listOfUseItems 
+      );
     public:
         Table table;
         ~SymbolTable();
@@ -33,7 +40,7 @@ class SymbolTable {
             std::string label,
             uint16_t value, 
             bool isDefined, 
-            ListOfStrings listOfUse);
+            ListOfStrings newListOfUse);
         bool isDefined(std::string label);
         bool isDefinition(std::string label);
         std::string getsAddressValue(std::string label);
