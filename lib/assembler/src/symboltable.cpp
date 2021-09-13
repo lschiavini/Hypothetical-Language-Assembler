@@ -3,23 +3,45 @@
 SymbolTable::~SymbolTable(){}
 SymbolTable::SymbolTable(){
     std::cout << "Symbol Table set"<< std::endl;
+
+
 }
 
 void SymbolTable::printTable() {
+    Table::iterator iteratorMap;
+
     std::cout << "_____________________"<<std::endl;
-    for(size_t i = 0; i != this->table.size(); i++ )
+    for(
+        iteratorMap = this->table.begin(); 
+        iteratorMap != this->table.end(); 
+        ++iteratorMap 
+    )
     {
-        std::cout << std::get<0>(this->table[i]) << " = " << std::get<1>(this->table[i]) << std::endl;
+        std::string label = iteratorMap->first;
+        Row row = iteratorMap->second;
+        std::uint16_t value = std::get<0>(row);
+        bool isDefined = std::get<1>(row);
+        ListOfStrings listOfUse = std::get<2>(row);
+        std::cout << label << " = " << 
+            value << "| isDefined = "<< isDefined
+            << "| listOfUse = "<< listOfUse.at(0) <<  
+            std::endl;
     } 
     std::cout << "_____________________"<<std::endl;
 }
 
 bool SymbolTable::contains(std::string label){
-    return false;
+    Table::iterator mapEnd = this->table.end();
+    Table::iterator position;
+    position = this->table.find(label);
+    if(position == mapEnd) {
+        return false;
+    }
+    return true;
 }
 
 Table::iterator SymbolTable::getPositions(std::string label) {
-    Table::iterator position = this->table.begin(); // TODO
+    Table::iterator position = this->table.begin(); // TODO getPositions
 
     return position;
 }

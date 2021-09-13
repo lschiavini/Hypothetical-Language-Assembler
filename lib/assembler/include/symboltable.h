@@ -11,10 +11,12 @@
 #include <string>
   
 typedef std::vector< std::string> ListOfStrings;
-// <label, value, isDefined, listOfUse>
-typedef std::tuple<std::string, uint16_t, bool, ListOfStrings> Row;
 
-typedef std::vector<Row> Table;
+// <value, isDefined, listOfUse>
+typedef std::tuple< uint16_t, bool, ListOfStrings > Row;
+
+// <label, row>
+typedef std::map<std::string, Row> Table;
 
 class SymbolTable {
     public:
