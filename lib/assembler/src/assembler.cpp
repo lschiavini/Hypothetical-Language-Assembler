@@ -21,20 +21,19 @@ void Assembler::onePassAlgorithm(){
     bool setDefined; 
     ListOfStrings listOfUse;
 
-    SymbolTable symbolTable;
     currentToken = this->readToken();
-    bool isDefined = symbolTable.isDefined(label);
-    bool isDefinition = symbolTable.isDefinition(label);
+    bool isDefined = this->symbolTable.isDefined(label);
+    bool isDefinition = this->symbolTable.isDefinition(label);
 
     while( !this->isEOF() ) {
         if( isDefined && isDefinition ) {
             throw ("Semantic Exception at line %d", currentLine);
         }
-        if(!symbolTable.contains(currentToken)) {
-            symbolTable.adds(label, value, isDefined, listOfUse);
+        if(!this->symbolTable.contains(currentToken)) {
+            this->symbolTable.adds(label, value, isDefined, listOfUse);
         }
         if(isDefined) {
-            std::string addressValue = symbolTable.getsAddressValue(label);
+            std::string addressValue = this->symbolTable.getsAddressValue(label);
             this->updatesAssembledCodeAtPosition(position, addressValue);
         } else if(isDefinition){
             setDefined = true;
@@ -66,8 +65,6 @@ void Assembler::updatesAllUsedPositions() {
 void Assembler::addsToUsedPosition(std::string label, uint16_t address) {
     // TODO addsToUsedPosition
 }
-
-
 
 void Assembler::writeAssembledFile() {
     std::string finalFileName = this->fileName.substr(0,this->fileName.find_last_of('.'))+".obj";

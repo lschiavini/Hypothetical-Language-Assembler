@@ -18,11 +18,8 @@ int main(int argc, char ** argv)
 
     // printFile(&sourceCode);
 
-
     Assembler myAssembler(&sourceCode, fileName);
     myAssembler.assembleFile();
-
-
 
     printFile(&assembledCode);
 
