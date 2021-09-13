@@ -58,15 +58,15 @@ void SymbolTable::adds(
         position = this->getPositions(label);
     } 
 
-    Row rowToBeInserted = make_tuple(label, value, isDefined, listOfUse);
-    this->table.insert(position, rowToBeInserted);
+    Row rowToBeInserted = make_tuple(value, isDefined, listOfUse);
+    this->table.insert(std::pair<std::string, Row>(label ,rowToBeInserted));
 }
 bool SymbolTable::isDefined(std::string label){
-    return false;
+    return false; // TODO isDefined
 }
 bool SymbolTable::isDefinition(std::string label){
-    return false;
+    return false; // TODO isDefinition
 }
 std::string SymbolTable::getsAddressValue(std::string label){
-    return "fakeAddress"; // TODO
+    return "fakeAddress"; // TODO getsAddressValue
 }
