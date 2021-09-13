@@ -7,17 +7,19 @@
 int main(int argc, char ** argv)
 {
     Args myArgs;
+    std::string fileName;
     std::fstream sourceCode, assembledCode;
     try {
         myArgs.checkArgsForErrors(&sourceCode, argc, argv);
     } catch(std::string error) {
         std::cout << error << std::endl;
     }
+    fileName = myArgs.getFileName();
 
     // printFile(&sourceCode);
 
 
-    Assembler myAssembler(&sourceCode);
+    Assembler myAssembler(&sourceCode, fileName);
     myAssembler.assembleFile();
 
 
