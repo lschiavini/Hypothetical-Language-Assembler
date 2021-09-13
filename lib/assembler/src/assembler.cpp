@@ -23,7 +23,7 @@ void Assembler::onePassAlgorithm(){
 
     currentToken = this->readToken();
     bool isDefined = this->symbolTable.isDefined(label);
-    bool isDefinition = this->symbolTable.isDefinition(label);
+    bool isDefinition = this->isDefinition(label);
 
     while( !this->isEOF() ) {
         if( isDefined && isDefinition ) {
@@ -33,7 +33,7 @@ void Assembler::onePassAlgorithm(){
             this->symbolTable.adds(label, value, isDefined, listOfUse);
         }
         if(isDefined) {
-            std::string addressValue = this->symbolTable.getsAddressValue(label);
+            std::uint16_t addressValue = this->symbolTable.getsAddressValue(label);
             this->updatesAssembledCodeAtPosition(position, addressValue);
         } else if(isDefinition){
             setDefined = true;
@@ -42,6 +42,10 @@ void Assembler::onePassAlgorithm(){
             addsToUsedPosition(label, currentAddress);
         }
     }
+}
+
+bool Assembler::isDefinition(std::string token){
+    return false;
 }
 
 bool Assembler::isEOF() {
@@ -54,7 +58,7 @@ std::string Assembler::readToken() {
     return "false";
 }
 
-void Assembler::updatesAssembledCodeAtPosition(int position, std::string value) {
+void Assembler::updatesAssembledCodeAtPosition(uint16_t position, uint16_t addressValue) {
     // TODO updatesAssembledCodeAtPosition
 }
 

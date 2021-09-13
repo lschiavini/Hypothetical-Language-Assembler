@@ -1,9 +1,10 @@
 #include <symboltable.h>
 
 SymbolTable::~SymbolTable(){}
+
 SymbolTable::SymbolTable(){
-    this->MOCKSymbolTable();
-    this->printTable();
+    // this->MOCKSymbolTable();
+    // this->printTable();
     std::cout << "Symbol Table set"<< std::endl;
 }
 
@@ -29,19 +30,6 @@ void SymbolTable::MOCKSymbolTable() {
     list.insert(list.begin(), {"19"});
     this->adds("OLD_DATA", 2, true, list);
 
-}
-
-std::string SymbolTable::getListAsString(ListOfStrings vectorList) {
-    std::string listAsString;
-    for (uint16_t i=0; i < vectorList.size(); i++) {
-        if(i==0) {
-            listAsString.append(("%d " , vectorList.at(i)));
-        } else{
-            listAsString.append(" -> ");
-            listAsString.append(("%d" , vectorList.at(i)));
-        }
-    }
-    return listAsString; 
 }
 
 void SymbolTable::printTable() {
@@ -75,6 +63,19 @@ void SymbolTable::printTable() {
     std::cout << "_____________________"<<std::endl;
 }
 
+std::string SymbolTable::getListAsString(ListOfStrings vectorList) {
+    std::string listAsString;
+    for (uint16_t i=0; i < vectorList.size(); i++) {
+        if(i==0) {
+            listAsString.append(("%d " , vectorList.at(i)));
+        } else{
+            listAsString.append(" -> ");
+            listAsString.append(("%d" , vectorList.at(i)));
+        }
+    }
+    return listAsString; 
+}
+
 bool SymbolTable::contains(std::string label){
     Table::iterator mapEnd = this->table.end();
     Table::iterator position;
@@ -83,11 +84,6 @@ bool SymbolTable::contains(std::string label){
         return false;
     }
     return true;
-}
-
-Table::iterator SymbolTable::getPositions(std::string label) {
-    Table::iterator position = this->table.begin(); // TODO getPositions
-    return position;
 }
 
 ListOfStrings SymbolTable::appendToUsedList(ListOfStrings usedList, ListOfStrings newUsedItems) {
@@ -132,13 +128,12 @@ void SymbolTable::adds(
 
 bool SymbolTable::isDefined(std::string label){
     Row currentRow = this->table[label];
-    return false; // TODO isDefined
+    bool isDefinedValue = std::get<1>(currentRow);
+    return isDefinedValue;
 }
 
-bool SymbolTable::isDefinition(std::string label){
-    return false; // TODO isDefinition
-}
-
-std::string SymbolTable::getsAddressValue(std::string label){
-    return "fakeAddress"; // TODO getsAddressValue
+std::uint16_t SymbolTable::getsAddressValue(std::string label){
+    Row currentRow = this->table[label];
+    bool addressValue = std::get<0>(currentRow);
+    return addressValue;
 }

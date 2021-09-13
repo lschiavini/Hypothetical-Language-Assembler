@@ -22,7 +22,6 @@ class SymbolTable {
     private:
       void MOCKSymbolTable();
       void printTable();
-      Table::iterator getPositions(std::string label);
       std::string getListAsString(ListOfStrings vectorList);
       ListOfStrings appendToUsedList(ListOfStrings usedList, ListOfStrings newUsedItems);
       void updatesListOfUse(
@@ -42,8 +41,7 @@ class SymbolTable {
             bool isDefined, 
             ListOfStrings newListOfUse);
         bool isDefined(std::string label);
-        bool isDefinition(std::string label);
-        std::string getsAddressValue(std::string label);
+        std::uint16_t getsAddressValue(std::string label);
 };
 
 #endif

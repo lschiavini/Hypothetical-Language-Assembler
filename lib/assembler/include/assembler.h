@@ -74,13 +74,13 @@ class Assembler {
         bool isInstruction(std::string token);
         std::string getOpCode(std::string token);
         bool isValidLabel(std::string token);
+        bool isDefinition(std::string token);
         // END TOKEN
 
         void updatesAllUsedPositions();
-        void updatesAssembledCodeAtPosition(int position, std::string value);
+        void updatesAssembledCodeAtPosition(uint16_t position, uint16_t addressValue);
         ListOfStrings getUsedPositionsOfLabel(std::string label);
         void addsToUsedPosition(std::string label, uint16_t address);
-
         void readTillNextSectionOrEOF();
 
 };
