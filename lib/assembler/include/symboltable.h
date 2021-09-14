@@ -20,7 +20,6 @@ typedef std::map<std::string, Row> Table;
 class SymbolTable {
     private:
       void MOCKSymbolTable();
-      void printTable();
       ListOfStrings appendToUsedList(ListOfStrings usedList, ListOfStrings newUsedItems);
       void updatesListOfUse(
           std::string label,
@@ -32,6 +31,7 @@ class SymbolTable {
         Table table;
         ~SymbolTable();
         SymbolTable();
+        void printTable();
         bool contains(std::string label);
         void adds(
             std::string label,
