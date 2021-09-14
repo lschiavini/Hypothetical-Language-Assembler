@@ -5,6 +5,8 @@
 #include <regex>
 #include <stringUtils.h>
 
+#include <iostream>
+
 template <typename Out>
 void split(const std::string &s, char delim, Out result) {
     std::istringstream iss(s);
@@ -38,5 +40,19 @@ std::string removeMultipleSpaces(std::string inputString) {
     std::string str = std::regex_replace(inputString, multipleSpaces, std::string(" "));
     return str;
 }
- 
 
+std::string trimFirstAndLastWhiteSpace(std::string stringInput) {
+    std::string s = stringInput;
+    if (!s.empty()) {
+        if (s.front() == ' ') s.erase(s.begin());
+        if (s.back() == ' ') s.pop_back();
+    }
+    return s;
+}
+
+bool isNumber(std::string stringToTest) {
+    std::regex rx("([0-9])");
+    std::smatch m;
+    bool isNumber = std::regex_match(stringToTest, rx);
+    return isNumber;
+}
