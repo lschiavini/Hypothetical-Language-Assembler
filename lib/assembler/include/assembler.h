@@ -98,24 +98,16 @@ class Assembler {
 
 
         void onePassAlgorithm();
-        bool isEOF();
         void writeAssembledFile();
         
         // TOKEN
-        void readFile();
 
-        void getLabelAtLine();
+        void getLabelDefAtLine();
         void getCommentsAtLine();
         void getInstructionAtLine();
         void getArgsAtLine();
 
-
-
-
-
-
-        
-        bool isInstruction(std::string token);
+        bool isValidInstruction(std::string token);
         bool isDataDirective(std::string token);
         std::string getOpCode(std::string token);
         bool isValidLabel(std::string token);

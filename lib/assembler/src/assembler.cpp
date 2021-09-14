@@ -90,10 +90,7 @@ void Assembler::operatesLabel(std::string label) {
 
 }
 
-bool Assembler::isValidInstruction(std::string token) {
-    // TODO isValidLabel
-    return false;
-}
+
 
 uint16_t Assembler::getsSizeVectorSpace() {
     return 0;
@@ -125,41 +122,53 @@ uint16_t Assembler::getsSizeVectorSpace() {
        
 
 void Assembler::onePassAlgorithm(){
-    this->readToken();
-    bool isDefined = this->symbolTable.isDefined(this->currentToken);
+
+
+    bool isDefined = this->symbolTable.isDefined(this->labelDef);
     bool isDefinition = this->isDefinition(this->currentToken);
-    std::cout << "TOKEN\t\t LINE\t ADDRESS\t"<<std::endl;
-            
-    while( !this->isEOF() ) {    
-        if( isDefined && isDefinition ) {
-            throw ("Semantic Exception at line %d", currentLine);
-        }
-        if(this->isLabelFlag) {
-            this->operatesLabel(this->currentToken);
-        } else if(this->isInstructionFlag) {
-            this->operatesInstruction(this->currentToken);
-        } else if(this->isConstantFlag) {
-            this->operatesConstant(this->currentToken);
-        }        
-        this->readToken();
+    
+    while(std::getline(*(this->sourceCode), this->currentLineReading)) {
+        this->currentLineReading = removeMultipleSpaces(this->currentLineReading);
+        this->getCommentsAtLine();
+        this->getLabelDefAtLine();
+        this->getInstructionAtLine();
+        this->getArgsAtLine();
+
+        // std::cout << "fromSplit    \t" << getListAsString(fromSplit) << "\tSIZE LIST: " << fromSplit.size() <<std::endl;
+
     }
+
+    // bool isDefined = this->symbolTable.isDefined(this->currentToken);
+    // bool isDefinition = this->isDefinition(this->currentToken);
+    // std::cout << "TOKEN\t\t LINE\t ADDRESS\t"<<std::endl;
+            
+    // while( !this->isEOF() ) {    
+    //     if( isDefined && isDefinition ) {
+    //         throw ("Semantic Exception at line %d", currentLine);
+    //     }
+    //     if(this->isLabelFlag) {
+    //         this->operatesLabel(this->currentToken);
+    //     } else if(this->isInstructionFlag) {
+    //         this->operatesInstruction(this->currentToken);
+    //     } else if(this->isConstantFlag) {
+    //         this->operatesConstant(this->currentToken);
+    //     }        
+    //     this->readFile();
+    // }
 }
 
 bool Assembler::isDefinition(std::string token){
     return false; // TODO isDefinition
 }
 
-bool Assembler::isEOF() {
-    return this->sourceCode->eof();
-}
 
-
-bool Assembler::isInstruction(std::string token) {
+bool Assembler::isValidInstruction(std::string token) { 
     DirectiveToNumber instructionMap = this->instructionToOpcode;
     if(instructionMap.find(token) != instructionMap.end()) {
         return true;
     }
     return false;
+    // TODO: throw error at line
 }
 
 bool Assembler::isDataDirective(std::string token) {
@@ -170,7 +179,7 @@ bool Assembler::isDataDirective(std::string token) {
     return false;
 }
 
-void Assembler::getLabelAtLine() {
+void Assembler::getLabelDefAtLine() {
     bool foundLabel = false;
     this->fromSplit = split(this->currentLineReading, ':');
     foundLabel = this->fromSplit.size() > 1;
@@ -221,7 +230,7 @@ void Assembler::getInstructionAtLine() {
     bool isSPACE = false;
     bool isSECTION = false;
     this->currentLineReading = trimFirstAndLastWhiteSpace(this->currentLineReading);
-    // std::cout << "currentLineReading    \t" << this->currentLineReading <<std::endl;
+    std::cout << "currentLineReading    \t" << this->currentLineReading <<std::endl;
     this->fromSplit = split(this->currentLineReading, ' ');
 
     instructionFound = this->fromSplit.size() > 1;
@@ -231,35 +240,20 @@ void Assembler::getInstructionAtLine() {
         this->instruction = this->fromSplit.at(0);
         if(isSECTION) {
             this->typeOfSection = this->fromSplit.at(1);
-            // std::cout << "typeOfSection    \t" << this->typeOfSection <<std::endl;
+            std::cout << "typeOfSection    \t" << this->typeOfSection <<std::endl;
         }
-        // std::cout << "instruction    \t" << this->instruction <<std::endl;
+        std::cout << "instruction    \t" << this->instruction <<std::endl;
         this->currentLineReading = this->fromSplit.at(1);
     } else if (isSPACE) {
         this->instruction = this->fromSplit.at(0);
-        // std::cout << "instruction    \t" << this->instruction <<std::endl;
+        this->vectorSpace = this->getsSizeVectorSpace();
+        std::cout << "instruction    \t" << this->instruction <<std::endl;
         this->currentLineReading = this->fromSplit.at(0);
     } else {
         this->currentLineReading = this->fromSplit.at(0);
     }
 }
 
-
-
-void Assembler::readFile() {
-
-    while(std::getline(*(this->sourceCode), this->currentLineReading)) {
-        this->currentLineReading = removeMultipleSpaces(this->currentLineReading);
-        this->getCommentsAtLine();
-        this->getLabelAtLine();
-        this->getInstructionAtLine();
-        this->getArgsAtLine();
-
-        // std::cout << "fromSplit    \t" << getListAsString(fromSplit) << "\tSIZE LIST: " << fromSplit.size() <<std::endl;
-
-    }
-
-}
 
 void Assembler::updatesAssembledCodeAtAddress(uint16_t addressValue) {
     // TODO updatesAssembledCodeAtPosition
