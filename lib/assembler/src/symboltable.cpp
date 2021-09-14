@@ -1,4 +1,5 @@
 #include <symboltable.h>
+#include <stringUtils.h>
 
 SymbolTable::~SymbolTable(){}
 
@@ -61,19 +62,6 @@ void SymbolTable::printTable() {
             std::endl;
     } 
     std::cout << "_____________________"<<std::endl;
-}
-
-std::string SymbolTable::getListAsString(ListOfStrings vectorList) {
-    std::string listAsString;
-    for (uint16_t i=0; i < vectorList.size(); i++) {
-        if(i==0) {
-            listAsString.append(("%d " , vectorList.at(i)));
-        } else{
-            listAsString.append(" -> ");
-            listAsString.append(("%d" , vectorList.at(i)));
-        }
-    }
-    return listAsString; 
 }
 
 bool SymbolTable::contains(std::string label){

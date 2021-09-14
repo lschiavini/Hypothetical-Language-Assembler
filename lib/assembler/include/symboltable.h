@@ -1,4 +1,3 @@
-  // Symbol Table
 #pragma once
 #ifndef SYMBOLTABLE_H
 #define SYMBOLTABLE_H
@@ -22,7 +21,6 @@ class SymbolTable {
     private:
       void MOCKSymbolTable();
       void printTable();
-      std::string getListAsString(ListOfStrings vectorList);
       ListOfStrings appendToUsedList(ListOfStrings usedList, ListOfStrings newUsedItems);
       void updatesListOfUse(
           std::string label,
