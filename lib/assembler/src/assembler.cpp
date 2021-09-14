@@ -126,10 +126,14 @@ void Assembler::onePassAlgorithm(){
     while(std::getline(*(this->sourceCode), this->currentLineReading)) {
         this->currentLineReading = removeMultipleSpaces(this->currentLineReading);
         std::cout << "currentLineReading    \t" << this->currentLineReading <<std::endl;
+        std::cout << std::endl;
         this->getCommentsAtLine();
         this->getLabelDefAtLine();
         this->getInstructionAtLine();
-        this->getArgsAtLine();
+        this->numberOfArgs = this->instructToSizeInMemory[this->instruction] - 1;
+        std::cout << "this->instruction    \t" << this->instruction <<std::endl;
+        if(this->numberOfArgs != 0 && this->numberOfArgs < 3) this->getArgsAtLine();
+
 
         // std::cout << "fromSplit    \t" << getListAsString(fromSplit) << "\tSIZE LIST: " << fromSplit.size() <<std::endl;
 
@@ -218,26 +222,33 @@ void Assembler::getInstructionAtLine() {
     bool isSPACE = false;
     bool isSECTION = false;
     bool isCOPY = false;
+    bool isSTOP = false;
     this->currentLineReading = trimFirstAndLastWhiteSpace(this->currentLineReading);
-    // std::cout << "currentLineReading    \t" << this->currentLineReading <<std::endl;
     this->fromSplit = split(this->currentLineReading, ' ');
 
     instructionFound = this->fromSplit.size() > 1;
     isSPACE = this->fromSplit.at(0).find("SPACE") != std::string::npos;
     isSECTION = this->fromSplit.at(0) == "SECTION";
     isCOPY = this->fromSplit.at(0) == "COPY";
-
-
+    isSTOP = this->fromSplit.at(0) == "STOP";
+    
+    // std::cout << "INSTRUCTION:\t currentLineReading    \t" << this->currentLineReading <<std::endl;
+    
     if(instructionFound) {
         this->instruction = this->fromSplit.at(0);
         if(isSECTION) {
             this->typeOfSection = this->fromSplit.at(1);
+            this->currentLineReading = this->fromSplit.at(1);
             // std::cout << "typeOfSection    \t" << this->typeOfSection <<std::endl;
         } else if(isCOPY) {
             this->currentLineReading = (this->fromSplit.at(1)).append(this->fromSplit.at(2));
-        }
+        } 
         // std::cout << "instruction    \t" << this->instruction <<std::endl;
         this->currentLineReading = this->fromSplit.at(1);
+    } else if (isSTOP) {
+            this->instruction = "STOP";
+            // std::cout << "INSTRUCTION:\t instruction    \t" << this->instruction <<std::endl;
+            this->currentLineReading = this->fromSplit.at(0);
     } else if (isSPACE) {
         this->instruction = "SPACE";
         this->setsSizeVectorSpace(this->fromSplit.at(0));
@@ -246,18 +257,18 @@ void Assembler::getInstructionAtLine() {
     } else {
         this->currentLineReading = this->fromSplit.at(0);
     }
+    // std::cout << "INSTRUCTION:\t fromSplit    \t" << getListAsString(this->fromSplit) << "\tSIZE LIST: " << fromSplit.size() <<std::endl;
     this->currentLineReading = removeAllSpaces(this->currentLineReading);
     
 }
 
 void Assembler::getArgsAtLine() { // could find labelsInline
-    uint16_t numberOfArgs = this->instructToSizeInMemory[this->instruction] - 1;
 
-    // std::cout << "numberOfArgs    \t" << numberOfArgs <<std::endl;
+    std::cout << "ARGS:\t numberOfArgs    \t" << this->numberOfArgs <<std::endl;
     this->fromSplit = split(this->currentLineReading, ',');
-    // std::cout << "fromSplit    \t" << getListAsString(this->fromSplit) << "\tSIZE LIST: " << fromSplit.size() <<std::endl;
+    std::cout << "ARGS:\t fromSplit    \t" << getListAsString(this->fromSplit) << "\tSIZE LIST: " << fromSplit.size() <<std::endl;
 
-    if (numberOfArgs == 2) {
+    if (this->numberOfArgs == 2) {
         this->arg1 = this->fromSplit.at(0);
         this->arg2 = this->fromSplit.at(1);
         this->currentLineReading = this->fromSplit.at(1);
@@ -266,9 +277,9 @@ void Assembler::getArgsAtLine() { // could find labelsInline
         this->arg2 = "";
         this->currentLineReading = this->fromSplit.at(0);
     }
-    // std::cout << "Args\t" << this->arg1 << " " <<  this->arg2 <<std::endl;
+    std::cout << "ARGS:\t Args\t" << this->arg1 << " " <<  this->arg2 <<std::endl;
     
-    // std::cout << "fromSplit    \t" << getListAsString(this->fromSplit) << "\tSIZE LIST: " << fromSplit.size() <<std::endl;
+    std::cout << "ARGS:\t fromSplit    \t" << getListAsString(this->fromSplit) << "\tSIZE LIST: " << fromSplit.size() <<std::endl;
 
 }
 

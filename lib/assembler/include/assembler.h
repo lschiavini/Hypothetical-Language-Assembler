@@ -91,6 +91,7 @@ class Assembler {
                 vectorSpace,
                 arg1,
                 arg2;
+        uint16_t numberOfArgs;
         FileLines currentFileLine;
         ListOfStrings fromSplit;
 
