@@ -88,14 +88,11 @@ class Assembler {
                 comment,
                 labelDef,
                 instruction, // opcode or value
+                vectorSpace,
                 arg1,
-                arg2,
-                vectorSpace;
+                arg2;
         FileLines currentFileLine;
         ListOfStrings fromSplit;
-        
-        
-
 
         void onePassAlgorithm();
         void writeAssembledFile();
@@ -107,12 +104,16 @@ class Assembler {
         void getInstructionAtLine();
         void getArgsAtLine();
 
-        bool isValidInstruction(std::string token);
-        bool isDataDirective(std::string token);
+
+            // VERIFIERS
+            bool isDataDirective(std::string token);
+            bool isValidLabel(std::string token);
+            bool isDefinition(std::string token);
+            bool isValidInstruction(std::string token);
+            // END VERIFIERS
+
+        
         std::string getOpCode(std::string token);
-        bool isValidLabel(std::string token);
-        bool isDefinition(std::string token);
-        bool isValidInstruction(std::string token);
         void operatesLabel(std::string label);
         void operatesInstruction(std::string instruction);
         void operatesConstant(std::string constant);

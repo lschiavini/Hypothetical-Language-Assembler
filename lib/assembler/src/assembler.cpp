@@ -129,6 +129,7 @@ void Assembler::onePassAlgorithm(){
     
     while(std::getline(*(this->sourceCode), this->currentLineReading)) {
         this->currentLineReading = removeMultipleSpaces(this->currentLineReading);
+        std::cout << "currentLineReading    \t" << this->currentLineReading <<std::endl;
         this->getCommentsAtLine();
         this->getLabelDefAtLine();
         this->getInstructionAtLine();
@@ -201,57 +202,61 @@ void Assembler::getCommentsAtLine() {
     
 }
 
-void Assembler::getArgsAtLine() {
-    // bool foundArgs = false;
-
-
-    // uint16_t numberOfArgs = this->instructToSizeInMemory[this->instruction] - 1;
-
-
-
-    // this->fromSplit = split(this->currentLineReading, ',');
-    // foundArgs = this->fromSplit.size() > 1;
-
-
-
-    // if(foundArgs) {
-    //     this->labelDef = this->fromSplit.at(0);
-    //     std::cout << "Args    \t" << this->labelDef <<std::endl;
-    //     this->currentLineReading = this->fromSplit.at(1);
-    // } else {
-    //     this->currentLineReading = this->fromSplit.at(0);
-    // }
-    // std::cout << "currentLineReading    \t" << this->currentLineReading <<std::endl;
-    
-}
-
 void Assembler::getInstructionAtLine() {
     bool instructionFound = false;
     bool isSPACE = false;
     bool isSECTION = false;
+    bool isCOPY = false;
     this->currentLineReading = trimFirstAndLastWhiteSpace(this->currentLineReading);
-    std::cout << "currentLineReading    \t" << this->currentLineReading <<std::endl;
+    // std::cout << "currentLineReading    \t" << this->currentLineReading <<std::endl;
     this->fromSplit = split(this->currentLineReading, ' ');
 
     instructionFound = this->fromSplit.size() > 1;
     isSPACE = this->fromSplit.at(0) == "SPACE";
     isSECTION = this->fromSplit.at(0) == "SECTION";
+    isCOPY = this->fromSplit.at(0) == "COPY";
     if(instructionFound) {
         this->instruction = this->fromSplit.at(0);
         if(isSECTION) {
             this->typeOfSection = this->fromSplit.at(1);
-            std::cout << "typeOfSection    \t" << this->typeOfSection <<std::endl;
+            // std::cout << "typeOfSection    \t" << this->typeOfSection <<std::endl;
+        } else if(isCOPY) {
+            this->currentLineReading = (this->fromSplit.at(1)).append(this->fromSplit.at(2));
         }
-        std::cout << "instruction    \t" << this->instruction <<std::endl;
+        // std::cout << "instruction    \t" << this->instruction <<std::endl;
         this->currentLineReading = this->fromSplit.at(1);
     } else if (isSPACE) {
         this->instruction = this->fromSplit.at(0);
         this->vectorSpace = this->getsSizeVectorSpace();
-        std::cout << "instruction    \t" << this->instruction <<std::endl;
+        // std::cout << "instruction    \t" << this->instruction <<std::endl;
         this->currentLineReading = this->fromSplit.at(0);
     } else {
         this->currentLineReading = this->fromSplit.at(0);
     }
+    this->currentLineReading = removeAllSpaces(this->currentLineReading);
+    
+}
+
+void Assembler::getArgsAtLine() { // could find labelsInline
+    uint16_t numberOfArgs = this->instructToSizeInMemory[this->instruction] - 1;
+
+    // std::cout << "numberOfArgs    \t" << numberOfArgs <<std::endl;
+    this->fromSplit = split(this->currentLineReading, ',');
+    std::cout << "fromSplit    \t" << getListAsString(this->fromSplit) << "\tSIZE LIST: " << fromSplit.size() <<std::endl;
+
+    if (numberOfArgs == 2) {
+        this->arg1 = this->fromSplit.at(0);
+        this->arg2 = this->fromSplit.at(1);
+        this->currentLineReading = this->fromSplit.at(1);
+    } else {
+        this->arg1 = this->fromSplit.at(0);
+        this->arg2 = "";
+        this->currentLineReading = this->fromSplit.at(0);
+    }
+    std::cout << "Args\t" << this->arg1 << " " <<  this->arg2 <<std::endl;
+    
+    // std::cout << "fromSplit    \t" << getListAsString(this->fromSplit) << "\tSIZE LIST: " << fromSplit.size() <<std::endl;
+
 }
 
 
