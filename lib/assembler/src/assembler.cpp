@@ -60,54 +60,66 @@ void Assembler::updatesCurrentAddress(
 }
 
 bool Assembler::isValidLabel(std::string token) {
+    return true;
     // TODO isValidLabel
-    return false;
 }
 
+
+
 void Assembler::operatesLabel(
-    std::string labelDef, // TODO: check if empty
-    std::string arg1, // TODO: check if empty
-    std::string arg2 // TODO: check if empty
+    std::string label,
+    uint16_t addressValue,
+    bool isDefinition
 ) {
-    std::string label = labelDef;
-    bool setDefined = false; 
-    uint16_t addressValue = this->currentAddress;
-    bool isDefined = this->symbolTable.isDefined(this->currentToken);
-    bool isDefinition = this->isDefinition(this->currentToken);
-    ListOfStrings listOfUse;
-
     this->isValidLabel(label);
+    ListOfStrings listOfUse;
+    bool isDefined = this->symbolTable.isDefined(label);
+   // std::cout << "HEREEEEEEEEE:111111111111" << std::endl;
+    // std::cout << "HEREEEEEEEEE: !this->symbolTable.contains(label) "<< !this->symbolTable.contains(label) << std::endl;
+    // std::cout << "HEREEEEEEEEE: isDefinition "<< isDefinition << std::endl;
 
-    if(!this->symbolTable.contains(this->currentToken)) {
-        this->symbolTable.adds(label, addressValue, setDefined, listOfUse);
-    }
+    if(isDefinition) {
+        if(isDefined) throw ("Semantic Error at line %d: Already Exists", this->currentLine);
+    } 
+
+    this->symbolTable.adds(label, addressValue, isDefinition, listOfUse);
+    
     if(isDefined) {
         std::uint16_t addressValue = this->symbolTable.getsAddressValue(label);
         this->updatesAssembledCodeAtAddress(addressValue);
-    } else if(isDefinition){
-        setDefined = true;
-        updatesAllUsedPositions();
     } else {
-        addsToUsedPosition(label, this->currentAddress);
+        addsToUsedPosition(label, addressValue);
     }
-    // TODO operatesLabel
-    std::cout << this->currentToken <<"\t\t" << this->currentLine <<"\t" << this->currentAddress <<std::endl;
-
+    
 }
 
+void Assembler::operatesLabelsForLine(
+    std::string labelDef,
+    std::string arg1,
+    std::string arg2
+) {
+    std::vector <std::tuple <std::string, uint16_t , bool >> labelsTuple;
+    bool isDefinition = labelDef != "";
 
+    if(labelDef != "") labelsTuple.insert(labelsTuple.begin(), make_tuple(labelDef, (uint16_t) (this->currentAddress), isDefinition));
+    if(arg1 != "") labelsTuple.insert(labelsTuple.begin(), make_tuple(arg1, (uint16_t) (this->currentAddress+1), false));
+    if(arg2 != "") labelsTuple.insert(labelsTuple.begin(), make_tuple(arg2, (uint16_t) (this->currentAddress+2), false));
+    
+    if(labelsTuple.size() > 0) {
+        for (size_t i = 0; i < labelsTuple.size(); i++) {
+            try{
+                std::tuple <std::string, uint16_t , bool > currentTuple = labelsTuple[i];
 
+                std::cout <<"PROCESSED LABEL: " << std::get<0>(currentTuple) <<"\t" << std::get<1>(currentTuple)  <<"\t" << std::get<2>(currentTuple) << std::endl;
+                this->operatesLabel(std::get<0>(currentTuple), std::get<1>(currentTuple), std::get<2>(currentTuple));
+            } catch(std::exception &e) {
+                std::cout << e.what() << '\n';
+            }
 
-
-// void Assembler::operatesConstant(std::string constant) {
-//     this->putOnFileLineTable(constant);
-//     std::cout << this->currentToken <<"\t\t" << this->currentLine <<"\t" << this->currentAddress <<std::endl;
-// }
-
-// void Assembler::putOnFileLineTable(std::string value) {
-
-// }
-       
+        }
+    }
+}
+      
 
 void Assembler::resetLineOperands() {
     this->comment = "";
@@ -121,7 +133,6 @@ void Assembler::resetLineOperands() {
 }
 
 void Assembler::updateCurrentLineAddress() {
-    std::cout << "this->sizeOfLine: " << this->sizeOfLine << std::endl;
     if(this->sizeOfLine <=3 && this->sizeOfLine > 0) {
         int vectorSpace = stoi(this->vectorSpace);
         if(vectorSpace > 0 ){
@@ -136,19 +147,26 @@ void Assembler::updateCurrentLineAddress() {
 void Assembler::processLineRead() {
     // TODO: processLineRead
     bool isAlreadyDefined = this->symbolTable.isDefined(this->labelDef);
-    
-    this->operatesLabel(this->labelDef, this->arg1, this->arg2);
+    this->operatesLabelsForLine(this->labelDef, this->arg1, this->arg2);
     // this->operatesInstruction();
-    // this->operatesConstant();
-
     if( isAlreadyDefined ) {
         throw ("Semantic Exception at line %d", this->currentLine);
     }
          
 }
 
+void Assembler::printsCurrentLine() {
+    std::cout << "\tLine:" << this->currentLine
+    << "\tAddress:" << this->currentAddress 
+    << "\tlabelDef:" << this->labelDef 
+    << "\tinstruction:" << this->instruction 
+    << "\targ1:" << this->arg1
+    << "\targ2:" << this->arg2 << std::endl;
+}
+
 void Assembler::onePassAlgorithm(){
   
+    // SymbolTable finalSymbolTable = this->symbolTable;
     while(std::getline(*(this->sourceCode), this->currentLineReading)) {
         try{
             this->resetLineOperands();
@@ -159,27 +177,19 @@ void Assembler::onePassAlgorithm(){
             this->sizeOfLine =  this->instructToSizeInMemory[this->instruction];
             this->getArgsAtLine();
 
-            std::cout << "\tLine:" << this->currentLine
-            << "\tAddress:" << this->currentAddress 
-            << "\tinstruction:" << this->instruction 
-            << "\targ1:" << this->arg1
-            << "\targ2:" << this->arg2 << std::endl;
+            // this->printsCurrentLine();
 
             this->processLineRead();
             this->updateCurrentLineAddress();
             this->currentLine +=1;
         } catch(std::runtime_error& e ) {
             std::cout << e.what() << '\n';
-        }
-
-        
+        }        
         // std::cout << "fromSplit    \t" << getListAsString(fromSplit) << "\tSIZE LIST: " << fromSplit.size() <<std::endl;
     }
 
-    // bool isDefined = this->symbolTable.isDefined(this->currentToken);
-    // bool isDefinition = this->isDefinition(this->currentToken);
-    // std::cout << "TOKEN\t\t LINE\t ADDRESS\t"<<std::endl;
-              
+    
+    this->symbolTable.printTable();              
 }
 
 bool Assembler::isDefinition(std::string token){
@@ -299,6 +309,11 @@ void Assembler::getArgsAtLine() { // could find labelsInline
             this->arg1 = this->fromSplit.at(0);
             this->arg2 = this->fromSplit.at(1);
             this->currentLineReading = this->fromSplit.at(1);
+        } else if(isCONST){
+            this->instruction = this->fromSplit.at(0);
+            this->arg1 = "";
+            this->arg2 = "";
+            this->currentLineReading = this->fromSplit.at(0);
         } else {
             this->arg1 = this->fromSplit.at(0);
             this->arg2 = "";

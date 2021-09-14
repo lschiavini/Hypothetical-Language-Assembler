@@ -76,6 +76,7 @@ class Assembler {
         
         // TESTING
         void printsMaps();
+        void printsCurrentLine();
         
         // END OF TESTING
 
@@ -117,10 +118,16 @@ class Assembler {
 
         
         std::string getOpCode(std::string token);
-        void operatesLabel(
+        void operatesLabelsForLine(
             std::string labelDef,
             std::string arg1,
             std::string arg2
+        );
+
+        void operatesLabel(
+            std::string label,
+            uint16_t addressValue,
+            bool isDefinition
         );
         void operatesInstruction(std::string instruction);
         void operatesConstant(std::string constant);
