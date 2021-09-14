@@ -51,9 +51,9 @@ void SymbolTable::printTable() {
         
         label = iteratorMap->first;
         row = iteratorMap->second;
-        value = std::get<0>(row);
-        isDefined = std::get<1>(row);
-        listOfUse = std::get<2>(row);
+        value = std::get<VALUEPOS>(row);
+        isDefined = std::get<ISDEFINEDPOS>(row);
+        listOfUse = std::get<LISTOFUSEPOS>(row);
         fullListOfUse = getListAsString(listOfUse);
         if(!removeAllSpaces(value).empty()) {
             std::cout << label << "\t\t| Address = " << 
@@ -98,13 +98,12 @@ void SymbolTable::updatesListOfUse(
 ) {
     Row rowToBeInserted;
     Row previousRow = this->table[label];
-    ListOfStrings oldListOfUse = std::get<2>(previousRow);
+    ListOfStrings oldListOfUse = std::get<LISTOFUSEPOS>(previousRow);
     ListOfStrings newListOfUse;
     newListOfUse = this->appendToUsedList(oldListOfUse, listOfUseItems);
     rowToBeInserted = make_tuple(value, isDefined, newListOfUse);
     this->table[label] = rowToBeInserted;
 }
-
 
 void SymbolTable::adds(
     std::string label,
@@ -115,7 +114,8 @@ void SymbolTable::adds(
     Row rowToBeInserted;
     if(!removeAllSpaces(label).empty()) {
         if(this->contains(label)) {
-            this->updatesListOfUse(label, address, isDefined, listOfUseItems);
+            bool setIsDefined = this->isDefined(label);
+            this->updatesListOfUse(label, address, true, listOfUseItems);
         } else {
             rowToBeInserted = make_tuple(address, isDefined, listOfUseItems);
             std::pair<std::string, Row> labelAndContents(label, rowToBeInserted);
@@ -127,7 +127,7 @@ void SymbolTable::adds(
 
 bool SymbolTable::isDefined(std::string label){
     Row currentRow = this->table[label];
-    bool isDefinedValue = std::get<1>(currentRow);
+    bool isDefinedValue = std::get<ISDEFINEDPOS>(currentRow);
     return isDefinedValue;
 }
 
@@ -140,6 +140,6 @@ std::string SymbolTable::getsAddressValue(std::string label){
 
 ListOfStrings SymbolTable::getsUsedPositions(std::string label){
     Row currentRow = this->table[label];
-    ListOfStrings usedPositions = std::get<2>(currentRow);
+    ListOfStrings usedPositions = std::get<LISTOFUSEPOS>(currentRow);
     return usedPositions;
 }

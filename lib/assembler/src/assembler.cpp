@@ -45,26 +45,10 @@ void Assembler::printsMaps() {
 }
 
 
-void Assembler::updatesCurrentAddress(
-    DirectiveToNumber mapToSizeInMemory,
-    uint16_t sizeVector,
-    bool isCONST
-) {
-    if (!this->currentToken.empty()) {
-        if (isCONST) {
-            this->currentAddress += 1;
-        } else {
-            this->currentAddress += mapToSizeInMemory[this->currentToken] + sizeVector;
-        }
-    }
-}
-
 bool Assembler::isValidLabel(std::string token) {
     return true;
     // TODO isValidLabel
 }
-
-
 
 void Assembler::operatesLabel(
     std::string label,
@@ -79,7 +63,7 @@ void Assembler::operatesLabel(
     bool isDefined = this->symbolTable.isDefined(label);
    // std::cout << "HEREEEEEEEEE:111111111111" << std::endl;
     // std::cout << "HEREEEEEEEEE: !this->symbolTable.contains(label) "<< !this->symbolTable.contains(label) << std::endl;
-    std::cout << "HEREEEEEEEEE: isDefinition "<< isDefinition << std::endl;
+    // std::cout << "HEREEEEEEEEE: isDefinition "<< isDefinition << std::endl;
 
     if(isDefinition) {
         if(isDefined) throw ("Semantic Error at line %d: Already Exists", this->currentLine);
@@ -93,10 +77,7 @@ void Assembler::operatesLabel(
     } else {
         this->addsToUsedPosition(label, labelAddress);
     }
-    
-        std::cout << "\t\t\tTABLE LINE ADDEDDDDD "<< std::endl;
-        this->symbolTable.printTable();
-    
+        
 }
 
 void Assembler::operatesLabelsForLine(
@@ -153,9 +134,10 @@ void Assembler::operatesLabelsForLine(
 
         }
     }
+    std::cout << "\t\t\tTABLE LINE ADDEDDDDD "<< std::endl;
+    this->symbolTable.printTable();
 }
       
-
 void Assembler::resetLineOperands() {
     this->comment = "";
     this->labelDef = "";
@@ -168,14 +150,21 @@ void Assembler::resetLineOperands() {
 }
 
 void Assembler::updateCurrentLineAddress() {
+    std::cout << "this->sizeOfLine    \t" << this->sizeOfLine <<std::endl;
+    std::cout << "this->currentAddress    \t" << this->currentAddress <<std::endl;
+        //TODO CHECK HOW TO UPDATE ADDRESS
     if(this->sizeOfLine <=3 && this->sizeOfLine > 0) {
         int vectorSpace = stoi(this->vectorSpace);
-        int addressToSum = 0;
+        int addressToSum = stoi(this->currentAddress);
+        std::cout << "vectorSpace    \t" << vectorSpace <<std::endl;
+    
         if(vectorSpace > 0 ){
             addressToSum += vectorSpace;
         } else {
             addressToSum += this->instructToSizeInMemory[this->instruction];
         }
+        
+        std::cout << "addressToSum    \t" << addressToSum <<std::endl;
         this->currentAddress = std::to_string(addressToSum);
     }
 }
@@ -228,11 +217,6 @@ void Assembler::onePassAlgorithm(){
     
     this->symbolTable.printTable();              
 }
-
-bool Assembler::isDefinition(std::string token){
-    return false; // TODO isDefinition
-}
-
 
 bool Assembler::isValidInstruction(std::string token) { 
     DirectiveToNumber instructionMap = this->instructionToOpcode;
