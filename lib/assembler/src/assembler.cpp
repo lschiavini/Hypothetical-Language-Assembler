@@ -71,8 +71,10 @@ void Assembler::operatesLabel(
     std::string addressValue,
     bool isDefinition
 ) {
+    
     this->isValidLabel(label);
-    ListOfStrings listOfUse;
+    // int currentAddressInt = this->currentAddress + 
+
     bool isDefined = this->symbolTable.isDefined(label);
    // std::cout << "HEREEEEEEEEE:111111111111" << std::endl;
     // std::cout << "HEREEEEEEEEE: !this->symbolTable.contains(label) "<< !this->symbolTable.contains(label) << std::endl;
@@ -104,7 +106,7 @@ void Assembler::operatesLabelsForLine(
     std::vector <std::tuple <std::string, std::string , bool >> labelsTuple;
     bool isDefinition = labelDef != "";
     int totalAddress = stoi(this->currentAddress);
-    
+
 
     if(labelDef != "") labelsTuple.insert(labelsTuple.begin(), make_tuple(labelDef, std::to_string(totalAddress), isDefinition));
     if(arg1 != "") labelsTuple.insert(labelsTuple.begin(), make_tuple(arg1, std::to_string(totalAddress+1), false));
@@ -171,31 +173,31 @@ void Assembler::printsCurrentLine() {
 
 void Assembler::onePassAlgorithm(){
   
-    // this->symbolTable.printTable();  
+    this->symbolTable.printTable();  
     
-    // while(std::getline(*(this->sourceCode), this->currentLineReading)) {
-    //     try{
-    //         this->resetLineOperands();
-    //         this->currentLineReading = removeMultipleSpaces(this->currentLineReading);
-    //         this->getCommentsAtLine();
-    //         this->getLabelDefAtLine();
-    //         this->getInstructionAtLine();
-    //         this->sizeOfLine =  this->instructToSizeInMemory[this->instruction];
-    //         this->getArgsAtLine();
+    while(std::getline(*(this->sourceCode), this->currentLineReading)) {
+        try{
+            this->resetLineOperands();
+            this->currentLineReading = removeMultipleSpaces(this->currentLineReading);
+            this->getCommentsAtLine();
+            this->getLabelDefAtLine();
+            this->getInstructionAtLine();
+            this->sizeOfLine =  this->instructToSizeInMemory[this->instruction];
+            this->getArgsAtLine();
 
-    //         this->printsCurrentLine();
+            this->printsCurrentLine();
 
-    //         this->processLineRead();
-    //         this->updateCurrentLineAddress();
-    //         this->currentLine +=1;
-    //     } catch( std::string errmsg ) {
-    //         std::cout << errmsg << '\n';
-    //     }        
-    //     // std::cout << "fromSplit    \t" << getListAsString(fromSplit) << "\tSIZE LIST: " << fromSplit.size() <<std::endl;
-    // }
+            this->processLineRead();
+            this->updateCurrentLineAddress();
+            this->currentLine +=1;
+        } catch( std::string errmsg ) {
+            std::cout << errmsg << '\n';
+        }        
+        // std::cout << "fromSplit    \t" << getListAsString(fromSplit) << "\tSIZE LIST: " << fromSplit.size() <<std::endl;
+    }
 
     
-    // this->symbolTable.printTable();              
+    this->symbolTable.printTable();              
 }
 
 bool Assembler::isDefinition(std::string token){
@@ -357,7 +359,7 @@ void Assembler::writeAssembledFile() {
 }
 
 void Assembler::assembleFile(){
-    // this->onePassAlgorithm();
+    this->onePassAlgorithm();
     // this->writeAssembledFile();
 }
 
