@@ -52,10 +52,10 @@ class Assembler {
             {"INPUT", 2},
             {"OUTPUT", 2},
             {"STOP", 1},
-        };  
-        DirectiveToNumber dataToSizeInMemory = {
             {"SPACE", 1},
             {"CONST", 1}, // TODO: CHANGE THIS
+        };  
+        DirectiveToNumber dataToSizeInMemory = {
         };  
 
 
@@ -83,17 +83,38 @@ class Assembler {
         // END OF TESTING
 
 
+        std::string currentLineReading,
+                typeOfSection,
+                comment,
+                labelDef,
+                instruction, // opcode or value
+                arg1,
+                arg2,
+                vectorSpace;
+        FileLines currentFileLine;
+        ListOfStrings fromSplit;
+        
+        
+
+
         void onePassAlgorithm();
         bool isEOF();
-        bool isComment();
         void writeAssembledFile();
         
         // TOKEN
-        void readToken();
-        void processToken(char currentChar);
+        void readFile();
+
+        void getLabelAtLine();
+        void getCommentsAtLine();
+        void getInstructionAtLine();
+        void getArgsAtLine();
+
+
+
+
+
+
         
-        bool isNumber(std::string stringToTest);
-        std::string readUntilEndToken(); 
         bool isInstruction(std::string token);
         bool isDataDirective(std::string token);
         std::string getOpCode(std::string token);

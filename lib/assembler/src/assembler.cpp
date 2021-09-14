@@ -99,29 +99,29 @@ uint16_t Assembler::getsSizeVectorSpace() {
     return 0;
 }
 
-void Assembler::operatesInstruction(std::string instruction) {
-    this->isValidInstruction(instruction);
-    DirectiveToNumber mapToSizeInMemory = this->dataToSizeInMemory;
-    uint16_t sizeVector = 0;
-    bool isCONST = 0;
-    if(this->currentToken == "SPACE") {
-        sizeVector = this->getsSizeVectorSpace();
-    } else if(this->currentToken == "CONST") {
-        isCONST = 1;
-    } else {
-        mapToSizeInMemory = this->instructToSizeInMemory;
-    }
-    this->updatesCurrentAddress(mapToSizeInMemory, sizeVector, isCONST);
-}
+// void Assembler::operatesInstruction(std::string instruction) {
+//     this->isValidInstruction(instruction);
+//     DirectiveToNumber mapToSizeInMemory = this->dataToSizeInMemory;
+//     uint16_t sizeVector = 0;
+//     bool isCONST = 0;
+//     if(this->currentToken == "SPACE") {
+//         sizeVector = this->getsSizeVectorSpace();
+//     } else if(this->currentToken == "CONST") {
+//         isCONST = 1;
+//     } else {
+//         mapToSizeInMemory = this->instructToSizeInMemory;
+//     }
+//     this->updatesCurrentAddress(mapToSizeInMemory, sizeVector, isCONST);
+// }
 
-void Assembler::operatesConstant(std::string constant) {
-    this->putOnFileLineTable(constant);
-    std::cout << this->currentToken <<"\t\t" << this->currentLine <<"\t" << this->currentAddress <<std::endl;
-}
+// void Assembler::operatesConstant(std::string constant) {
+//     this->putOnFileLineTable(constant);
+//     std::cout << this->currentToken <<"\t\t" << this->currentLine <<"\t" << this->currentAddress <<std::endl;
+// }
 
-void Assembler::putOnFileLineTable(std::string value) {
+// void Assembler::putOnFileLineTable(std::string value) {
 
-}
+// }
        
 
 void Assembler::onePassAlgorithm(){
@@ -153,49 +153,6 @@ bool Assembler::isEOF() {
     return this->sourceCode->eof();
 }
 
-bool Assembler::isNumber(std::string stringToTest) {
-    std::regex rx("([0-9])");
-    std::smatch m;
-    bool isNumber = std::regex_match(stringToTest, rx);
-    return isNumber;
-}
-
-void Assembler::processToken(char currentChar) {
-
-    this->isLabelFlag = false;
-    this->isInstructionFlag = false;
-    this->isConstantFlag = false;
-
-    if(this->isNumber(this->currentToken)) {
-        this->isConstantFlag =  true;
-    } else {
-        if(currentChar == ':') {
-            this->isLabelFlag = true;
-        } 
-        else if(currentChar == ' ') {
-            if(this->isInstruction(this->currentToken)) {
-                this->isInstructionFlag = true;
-            }
-        } else if(currentChar == '\n') {
-            this->isLabelFlag = true;
-        } else if(currentChar == ',') {
-
-        } else if(currentChar ==  ';') {
-            std::string comment;
-            std::getline(*(this->sourceCode), comment);
-        } else if(currentChar ==  '\n') {
-            this->currentLine++;
-        } 
-    }   
-
-    // if(this->isLabelFlag) {
-    //     std::cout << "isLabel"<<std::endl;
-    // } else if(this->isInstructionFlag) {
-    //     std::cout << "isInstruction"<<std::endl;
-    // } else if(this->isConstantFlag) {
-    //     std::cout << "isConstant"<<std::endl;
-    // }
-}
 
 bool Assembler::isInstruction(std::string token) {
     DirectiveToNumber instructionMap = this->instructionToOpcode;
@@ -213,90 +170,95 @@ bool Assembler::isDataDirective(std::string token) {
     return false;
 }
 
-void Assembler::readToken() {
-    std::string currentLine,
-                typeOfSection,
-                comment,
-                labelDef,
-                opcodeValue,
-                arg1,
-                arg2;
-    FileLines currentFileLine;
-    ListOfStrings fromSplit;
-    while(std::getline(*(this->sourceCode), currentLine)) {
-        currentLine = removeMultipleSpaces(currentLine);
-        // COMMENTS
-        fromSplit = split(currentLine, ';');
-        currentLine = fromSplit.at(0);
+void Assembler::getLabelAtLine() {
+    bool foundLabel = false;
+    this->fromSplit = split(this->currentLineReading, ':');
+    foundLabel = this->fromSplit.size() > 1;
+    if(foundLabel) {
+        this->labelDef = this->fromSplit.at(0);
+        // std::cout << "Label    \t" << this->labelDef <<std::endl;
+        this->currentLineReading = this->fromSplit.at(1);
+    } else {
+        this->currentLineReading = this->fromSplit.at(0);
+    }
+    // std::cout << "currentLineReading    \t" << this->currentLineReading <<std::endl;
+    
+}
 
-        //TYPEOFSECTION
-        
-        fromSplit = split(currentLine, ':');
-        if(fromSplit.size() > 1) { // FOUND LABEL DEF
-            labelDef = fromSplit.at(0);
-            std::cout << "Label    \t" << labelDef <<std::endl;
-            currentLine = fromSplit.at(1);
-        } else { // SAME STRING
-            currentLine = fromSplit.at(0);
+void Assembler::getCommentsAtLine() {
+    this->fromSplit = split(this->currentLineReading, ';');
+    this->currentLineReading = this->fromSplit.at(0);
+    // std::cout << "currentLineReading    \t" << this->currentLineReading <<std::endl;
+    
+}
+
+void Assembler::getArgsAtLine() {
+    // bool foundArgs = false;
+
+
+    // uint16_t numberOfArgs = this->instructToSizeInMemory[this->instruction] - 1;
+
+
+
+    // this->fromSplit = split(this->currentLineReading, ',');
+    // foundArgs = this->fromSplit.size() > 1;
+
+
+
+    // if(foundArgs) {
+    //     this->labelDef = this->fromSplit.at(0);
+    //     std::cout << "Args    \t" << this->labelDef <<std::endl;
+    //     this->currentLineReading = this->fromSplit.at(1);
+    // } else {
+    //     this->currentLineReading = this->fromSplit.at(0);
+    // }
+    // std::cout << "currentLineReading    \t" << this->currentLineReading <<std::endl;
+    
+}
+
+void Assembler::getInstructionAtLine() {
+    bool instructionFound = false;
+    bool isSPACE = false;
+    bool isSECTION = false;
+    this->currentLineReading = trimFirstAndLastWhiteSpace(this->currentLineReading);
+    // std::cout << "currentLineReading    \t" << this->currentLineReading <<std::endl;
+    this->fromSplit = split(this->currentLineReading, ' ');
+
+    instructionFound = this->fromSplit.size() > 1;
+    isSPACE = this->fromSplit.at(0) == "SPACE";
+    isSECTION = this->fromSplit.at(0) == "SECTION";
+    if(instructionFound) {
+        this->instruction = this->fromSplit.at(0);
+        if(isSECTION) {
+            this->typeOfSection = this->fromSplit.at(1);
+            // std::cout << "typeOfSection    \t" << this->typeOfSection <<std::endl;
         }
-
-
-        // LABEL DEF
-
-        std::cout << "currentLine    \t" << currentLine <<std::endl;
-        fromSplit = split(currentLine, ':');
-        if(fromSplit.size() > 1) { // FOUND LABEL DEF
-            labelDef = fromSplit.at(0);
-            std::cout << "Label    \t" << labelDef <<std::endl;
-            currentLine = fromSplit.at(1);
-        } else { // SAME STRING
-            currentLine = fromSplit.at(0);
-        }
-
-        // SPACES
-        fromSplit = split(currentLine, ' ');
-        std::cout << "fromSplit SPACE\t" << getListAsString(fromSplit) << "\tSIZE LIST: " << fromSplit.size() <<std::endl;
-
-        // if(fromSplit.size() > 1) { // FOUND LABEL DEF
-        //     labelDef = fromSplit.at(0);
-        //     std::cout << "Label    \t" << labelDef <<std::endl;
-        //     currentLine = fromSplit.at(1);
-        // } else { // SAME STRING
-        //     currentLine = fromSplit.at(0);
-        // }
+        // std::cout << "instruction    \t" << this->instruction <<std::endl;
+        this->currentLineReading = this->fromSplit.at(1);
+    } else if (isSPACE) {
+        this->instruction = this->fromSplit.at(0);
+        // std::cout << "instruction    \t" << this->instruction <<std::endl;
+        this->currentLineReading = this->fromSplit.at(0);
+    } else {
+        this->currentLineReading = this->fromSplit.at(0);
+    }
+}
 
 
 
+void Assembler::readFile() {
 
+    while(std::getline(*(this->sourceCode), this->currentLineReading)) {
+        this->currentLineReading = removeMultipleSpaces(this->currentLineReading);
+        this->getCommentsAtLine();
+        this->getLabelAtLine();
+        this->getInstructionAtLine();
+        this->getArgsAtLine();
 
         // std::cout << "fromSplit    \t" << getListAsString(fromSplit) << "\tSIZE LIST: " << fromSplit.size() <<std::endl;
 
     }
 
-
-
-    // char c;
-    // bool exitChar = false;
-    // this->currentToken.clear();
-    // std::string currentCharString;
-    // while(!exitChar){
-    //     this->sourceCode->get(c);
-    //     exitChar = c == ':' 
-    //     || c == ' ' 
-    //     || c == ';'
-    //     || c == ','
-    //     || c == '\n';
-    //     if(exitChar) {
-    //         this->processToken(c);
-    //     } else {
-    //         if(!this->isEOF()) { 
-    //             currentCharString = ("%c", c);
-    //             this->currentToken += currentCharString;  
-    //         } else {
-    //             exitChar = true;
-    //         }
-    //     }
-    // }
 }
 
 void Assembler::updatesAssembledCodeAtAddress(uint16_t addressValue) {
