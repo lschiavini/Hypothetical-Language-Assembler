@@ -118,7 +118,7 @@ class Assembler {
         void operatesInstruction(std::string instruction);
         void operatesConstant(std::string constant);
         
-        uint16_t getsSizeVectorSpace();
+        void setsSizeVectorSpace(std::string strToBeSearched);
 
         // END TOKEN
 

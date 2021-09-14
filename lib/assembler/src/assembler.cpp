@@ -92,10 +92,6 @@ void Assembler::operatesLabel(std::string label) {
 
 
 
-uint16_t Assembler::getsSizeVectorSpace() {
-    return 0;
-}
-
 // void Assembler::operatesInstruction(std::string instruction) {
 //     this->isValidInstruction(instruction);
 //     DirectiveToNumber mapToSizeInMemory = this->dataToSizeInMemory;
@@ -202,6 +198,21 @@ void Assembler::getCommentsAtLine() {
     
 }
 
+void Assembler::setsSizeVectorSpace(std::string strToBeSearched) {
+    std::string vectorValue = "0";
+    ListOfStrings newStringList;
+    uint16_t posPlus = strToBeSearched.find("+"); 
+    // std::cout << "strToBeSearched    \t" << strToBeSearched <<std::endl;
+    // std::cout << "posPlus    \t" << posPlus <<std::endl;
+    
+    if(posPlus < 60000) {
+        newStringList = split(strToBeSearched, '+');
+        vectorValue = newStringList.at(1);
+        this->vectorSpace = vectorValue;
+        // std::cout << "this->vectorSpace    \t" << this->vectorSpace <<std::endl;
+    }
+}
+
 void Assembler::getInstructionAtLine() {
     bool instructionFound = false;
     bool isSPACE = false;
@@ -212,9 +223,11 @@ void Assembler::getInstructionAtLine() {
     this->fromSplit = split(this->currentLineReading, ' ');
 
     instructionFound = this->fromSplit.size() > 1;
-    isSPACE = this->fromSplit.at(0) == "SPACE";
+    isSPACE = this->fromSplit.at(0).find("SPACE") != std::string::npos;
     isSECTION = this->fromSplit.at(0) == "SECTION";
     isCOPY = this->fromSplit.at(0) == "COPY";
+
+
     if(instructionFound) {
         this->instruction = this->fromSplit.at(0);
         if(isSECTION) {
@@ -226,8 +239,8 @@ void Assembler::getInstructionAtLine() {
         // std::cout << "instruction    \t" << this->instruction <<std::endl;
         this->currentLineReading = this->fromSplit.at(1);
     } else if (isSPACE) {
-        this->instruction = this->fromSplit.at(0);
-        this->vectorSpace = this->getsSizeVectorSpace();
+        this->instruction = "SPACE";
+        this->setsSizeVectorSpace(this->fromSplit.at(0));
         // std::cout << "instruction    \t" << this->instruction <<std::endl;
         this->currentLineReading = this->fromSplit.at(0);
     } else {
@@ -242,7 +255,7 @@ void Assembler::getArgsAtLine() { // could find labelsInline
 
     // std::cout << "numberOfArgs    \t" << numberOfArgs <<std::endl;
     this->fromSplit = split(this->currentLineReading, ',');
-    std::cout << "fromSplit    \t" << getListAsString(this->fromSplit) << "\tSIZE LIST: " << fromSplit.size() <<std::endl;
+    // std::cout << "fromSplit    \t" << getListAsString(this->fromSplit) << "\tSIZE LIST: " << fromSplit.size() <<std::endl;
 
     if (numberOfArgs == 2) {
         this->arg1 = this->fromSplit.at(0);
@@ -253,7 +266,7 @@ void Assembler::getArgsAtLine() { // could find labelsInline
         this->arg2 = "";
         this->currentLineReading = this->fromSplit.at(0);
     }
-    std::cout << "Args\t" << this->arg1 << " " <<  this->arg2 <<std::endl;
+    // std::cout << "Args\t" << this->arg1 << " " <<  this->arg2 <<std::endl;
     
     // std::cout << "fromSplit    \t" << getListAsString(this->fromSplit) << "\tSIZE LIST: " << fromSplit.size() <<std::endl;
 
