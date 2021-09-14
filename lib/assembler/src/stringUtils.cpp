@@ -41,6 +41,12 @@ std::string removeMultipleSpaces(std::string inputString) {
     return str;
 }
 
+std::string removeAllSpaces(std::string inputString) {
+    std::regex multipleSpaces("\\s+");
+    std::string str = std::regex_replace(inputString, multipleSpaces, std::string(""));
+    return str;
+}
+
 std::string trimFirstAndLastWhiteSpace(std::string stringInput) {
     std::string s = stringInput;
     if (!s.empty()) {
