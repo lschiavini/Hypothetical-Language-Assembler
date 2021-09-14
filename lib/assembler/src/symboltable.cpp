@@ -48,17 +48,19 @@ void SymbolTable::printTable() {
         ++iteratorMap 
     )
     {
+        
         label = iteratorMap->first;
         row = iteratorMap->second;
         value = std::get<0>(row);
         isDefined = std::get<1>(row);
         listOfUse = std::get<2>(row);
         fullListOfUse = getListAsString(listOfUse);
-
-        std::cout << label << "\t\t| Address = " << 
+        if(!removeAllSpaces(value).empty()) {
+            std::cout << label << "\t\t| Address = " << 
             value << "\t| isDefined = "<< isDefined
             << "\t| listOfUse = "<< fullListOfUse <<  
             std::endl;
+        }
     } 
     std::cout << "_____________________"<<std::endl;
 }
@@ -111,7 +113,7 @@ void SymbolTable::adds(
     ListOfStrings listOfUseItems
 ){
     Row rowToBeInserted;
-    if(label != "") {
+    if(!removeAllSpaces(label).empty()) {
         if(this->contains(label)) {
             this->updatesListOfUse(label, address, isDefined, listOfUseItems);
         } else {
