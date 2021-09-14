@@ -68,8 +68,9 @@ bool Assembler::isValidLabel(std::string token) {
 
 void Assembler::operatesLabel(
     std::string label,
-    std::string addressValue,
-    bool isDefinition
+    std::string addressLabelDef,
+    bool isDefinition,
+    std::string labelAddress
 ) {
     
     this->isValidLabel(label);
@@ -84,13 +85,13 @@ void Assembler::operatesLabel(
         if(isDefined) throw ("Semantic Error at line %d: Already Exists", this->currentLine);
     } 
 
-    this->symbolTable.adds(label, addressValue, isDefinition, listOfUse);
+    this->symbolTable.adds(label, addressLabelDef, isDefinition, {labelAddress});
     
     if(isDefined) {
-        std::string addressValue = this->symbolTable.getsAddressValue(label);
-        this->updatesAssembledCodeAtAddress(addressValue);
+        std::string addressToReplace = this->symbolTable.getsAddressValue(label);
+        this->updatesAssembledCodeAtAddress(addressToReplace);
     } else {
-        this->addsToUsedPosition(label, addressValue);
+        this->addsToUsedPosition(label, labelAddress);
     }
     
         std::cout << "\t\t\tTABLE LINE ADDEDDDDD "<< std::endl;
@@ -103,21 +104,49 @@ void Assembler::operatesLabelsForLine(
     std::string arg1,
     std::string arg2
 ) {
-    std::vector <std::tuple <std::string, std::string , bool >> labelsTuple;
+    std::vector <std::tuple <std::string, std::string , bool, std::string>> labelsTuple;
     bool isDefinition = labelDef != "";
     int totalAddress = stoi(this->currentAddress);
 
-
-    if(labelDef != "") labelsTuple.insert(labelsTuple.begin(), make_tuple(labelDef, std::to_string(totalAddress), isDefinition));
-    if(arg1 != "") labelsTuple.insert(labelsTuple.begin(), make_tuple(arg1, std::to_string(totalAddress+1), false));
-    if(arg2 != "") labelsTuple.insert(labelsTuple.begin(), make_tuple(arg2, std::to_string(totalAddress+2), false));
+    if(labelDef != "") labelsTuple.insert(
+                labelsTuple.begin(),
+                make_tuple(
+                    labelDef,
+                    this->currentAddress,
+                    isDefinition,
+                    std::to_string(totalAddress)
+                )
+            );
+    if(arg1 != "") labelsTuple.insert(
+                labelsTuple.begin(),
+                make_tuple(
+                    arg1,
+                    this->currentAddress,
+                    false,
+                    std::to_string(totalAddress+1)
+                )
+            );
+    if(arg2 != "") labelsTuple.insert(
+                labelsTuple.begin(),
+                make_tuple(
+                    arg2,
+                    this->currentAddress,
+                    false, 
+                    std::to_string(totalAddress+2)
+                )
+            );
     
     if(labelsTuple.size() > 0) {
         for (size_t i = 0; i < labelsTuple.size(); i++) {
             try{
-                std::tuple <std::string, std::string, bool > currentTuple = labelsTuple[i];
-                std::cout <<"PROCESSED LABEL: " << std::get<0>(currentTuple) <<"\t" << std::get<1>(currentTuple)  <<"\t" << std::get<2>(currentTuple) << std::endl;
-                this->operatesLabel(std::get<0>(currentTuple), std::get<1>(currentTuple), std::get<2>(currentTuple));
+                std::tuple <std::string, std::string, bool, std::string> currentTuple = labelsTuple[i];
+                // std::cout <<"PROCESSED LABEL: " << std::get<0>(currentTuple) <<"\t" << std::get<1>(currentTuple)  <<"\t" << std::get<2>(currentTuple) << std::endl;
+                this->operatesLabel(
+                    std::get<0>(currentTuple),
+                    std::get<1>(currentTuple),
+                    std::get<2>(currentTuple), 
+                    std::get<3>(currentTuple)
+                );
             } catch( std::string errmsg ) {
                 std::cout << errmsg << '\n';
             }        
@@ -165,7 +194,7 @@ void Assembler::processLineRead() {
 void Assembler::printsCurrentLine() {
     std::cout << "\tLine:" << this->currentLine
     << "\tAddress:" << this->currentAddress 
-    << "\tlabelDef:" << this->labelDef 
+    << "\tlabelDef:[" << this->labelDef <<"]"
     << "\tinstruction:" << this->instruction 
     << "\targ1:" << this->arg1
     << "\targ2:" << this->arg2 << std::endl;

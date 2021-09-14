@@ -127,8 +127,9 @@ class Assembler {
 
         void operatesLabel(
             std::string label,
-            std::string addressValue,
-            bool isDefinition
+            std::string addressLabelDef,
+            bool isDefinition,
+            std::string labelAddress
         );
         void operatesInstruction(std::string instruction);
         void operatesConstant(std::string constant);
