@@ -10,9 +10,10 @@
 typedef std::vector< std::string> ListOfStrings;
 typedef std::map<std::string, uint16_t> DirectiveToNumber;
 
+
+typedef std::tuple<std::string, std::string, std::string, std::string, uint16_t > AddressOpcodeArgsLine;
 // address opcode/value arg1 arg2 lineOriginalFile 
-typedef std::tuple< std::string, std::string, std::string, uint16_t > OpcodeArgsLine;
-typedef std::map<std::string, OpcodeArgsLine > FileLines;
+typedef std::map<std::string, AddressOpcodeArgsLine > FileLines;
 
 class Assembler {
     public:
@@ -69,11 +70,7 @@ class Assembler {
 
         std::uint16_t currentLine = 0;
         uint16_t currentAddress = 0;
-        std::string currentToken = "";
-        bool isLabelFlag = false;
-        bool isInstructionFlag = false;
-        bool isConstantFlag = false;
-        
+        std::string currentToken = "";        
 
         std::string fileName = "binComments.asm";
         
@@ -91,19 +88,21 @@ class Assembler {
                 vectorSpace,
                 arg1,
                 arg2;
-        uint16_t numberOfArgs;
-        FileLines currentFileLine;
+        uint16_t numberOfArgs, sizeOfLine;
         ListOfStrings fromSplit;
 
         void onePassAlgorithm();
         void writeAssembledFile();
         
         // TOKEN
-
+        void resetLineOperands();
+        
         void getLabelDefAtLine();
         void getCommentsAtLine();
         void getInstructionAtLine();
         void getArgsAtLine();
+
+        void updateCurrentLineAddress();
 
 
             // VERIFIERS

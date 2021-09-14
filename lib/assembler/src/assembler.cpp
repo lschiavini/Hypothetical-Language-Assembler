@@ -117,24 +117,54 @@ void Assembler::operatesLabel(std::string label) {
 // }
        
 
+void Assembler::resetLineOperands() {
+    this->comment = "";
+    this->labelDef = "";
+    this->instruction = ""; // opcode or value
+    this->vectorSpace = "0";
+    this->arg1 = "";
+    this->arg2 = "";
+    this->sizeOfLine = 0;
+    this->numberOfArgs = 0;
+}
+
+void Assembler::updateCurrentLineAddress() {
+    std::cout << "this->sizeOfLine: " << this->sizeOfLine << std::endl;
+    if(this->sizeOfLine <=3 && this->sizeOfLine > 0) {
+        int vectorSpace = stoi(this->vectorSpace);
+        if(vectorSpace > 0 ){
+            this->currentAddress += vectorSpace;
+        } else {
+            this->currentAddress += this->instructToSizeInMemory[this->instruction];
+        }
+        
+    }
+}
+
 void Assembler::onePassAlgorithm(){
 
 
     bool isDefined = this->symbolTable.isDefined(this->labelDef);
     bool isDefinition = this->isDefinition(this->currentToken);
+
     
     while(std::getline(*(this->sourceCode), this->currentLineReading)) {
+        this->resetLineOperands();
         this->currentLineReading = removeMultipleSpaces(this->currentLineReading);
-        std::cout << "currentLineReading    \t" << this->currentLineReading <<std::endl;
-        std::cout << std::endl;
         this->getCommentsAtLine();
         this->getLabelDefAtLine();
         this->getInstructionAtLine();
-        this->numberOfArgs = this->instructToSizeInMemory[this->instruction] - 1;
-        std::cout << "this->instruction    \t" << this->instruction <<std::endl;
-        if(this->numberOfArgs != 0 && this->numberOfArgs < 3) this->getArgsAtLine();
+        this->sizeOfLine =  this->instructToSizeInMemory[this->instruction];
+        this->getArgsAtLine();
 
+        std::cout << "\tLine:" << this->currentLine
+        << "\tAddress:" << this->currentAddress 
+        << "\tinstruction:" << this->instruction 
+        << "\targ1:" << this->arg1
+        << "\targ2:" << this->arg2 << std::endl;
 
+        this->updateCurrentLineAddress();
+        this->currentLine +=1;
         // std::cout << "fromSplit    \t" << getListAsString(fromSplit) << "\tSIZE LIST: " << fromSplit.size() <<std::endl;
 
     }
@@ -263,24 +293,25 @@ void Assembler::getInstructionAtLine() {
 }
 
 void Assembler::getArgsAtLine() { // could find labelsInline
+    this->numberOfArgs = this->sizeOfLine - 1;
+    if(this->numberOfArgs != 0 && this->numberOfArgs < 3) {
+        // std::cout << "ARGS:\t numberOfArgs    \t" << this->numberOfArgs <<std::endl;
+        this->fromSplit = split(this->currentLineReading, ',');
+        // std::cout << "ARGS:\t fromSplit    \t" << getListAsString(this->fromSplit) << "\tSIZE LIST: " << fromSplit.size() <<std::endl;
 
-    std::cout << "ARGS:\t numberOfArgs    \t" << this->numberOfArgs <<std::endl;
-    this->fromSplit = split(this->currentLineReading, ',');
-    std::cout << "ARGS:\t fromSplit    \t" << getListAsString(this->fromSplit) << "\tSIZE LIST: " << fromSplit.size() <<std::endl;
-
-    if (this->numberOfArgs == 2) {
-        this->arg1 = this->fromSplit.at(0);
-        this->arg2 = this->fromSplit.at(1);
-        this->currentLineReading = this->fromSplit.at(1);
-    } else {
-        this->arg1 = this->fromSplit.at(0);
-        this->arg2 = "";
-        this->currentLineReading = this->fromSplit.at(0);
-    }
-    std::cout << "ARGS:\t Args\t" << this->arg1 << " " <<  this->arg2 <<std::endl;
-    
-    std::cout << "ARGS:\t fromSplit    \t" << getListAsString(this->fromSplit) << "\tSIZE LIST: " << fromSplit.size() <<std::endl;
-
+        if (this->numberOfArgs == 2) {
+            this->arg1 = this->fromSplit.at(0);
+            this->arg2 = this->fromSplit.at(1);
+            this->currentLineReading = this->fromSplit.at(1);
+        } else {
+            this->arg1 = this->fromSplit.at(0);
+            this->arg2 = "";
+            this->currentLineReading = this->fromSplit.at(0);
+        }
+        // std::cout << "ARGS:\t Args\t" << this->arg1 << " " <<  this->arg2 <<std::endl;
+        
+        // std::cout << "ARGS:\t fromSplit    \t" << getListAsString(this->fromSplit) << "\tSIZE LIST: " << fromSplit.size() <<std::endl;
+    }   
 }
 
 
