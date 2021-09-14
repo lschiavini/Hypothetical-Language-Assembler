@@ -13,7 +13,7 @@ void SymbolTable::MOCKSymbolTable() {
     ListOfStrings list;
     //Adds first row
     list.insert(list.begin(), {"7", "9"});
-    this->adds("OLD_DATA", 2, true, list);
+    this->adds("OLD_DATA", "2", true, list);
 
     // erases list
     list.erase(list.begin());
@@ -21,7 +21,7 @@ void SymbolTable::MOCKSymbolTable() {
 
     // adds second row
     list.insert(list.begin(), {"11", "15"});
-    this->adds("DOIS", 0, true, list);
+    this->adds("DOIS", "0", true, list);
 
     // erases list
     list.erase(list.begin());
@@ -29,7 +29,7 @@ void SymbolTable::MOCKSymbolTable() {
 
     //Adds another element of usedList on first row
     list.insert(list.begin(), {"19"});
-    this->adds("OLD_DATA", 2, true, list);
+    this->adds("OLD_DATA", "2", true, list);
 
 }
 
@@ -37,11 +37,10 @@ void SymbolTable::printTable() {
     Table::iterator iteratorMap;
     std::string label;
     Row row;
-    std::uint16_t value;
+    std::string value;
     bool isDefined;
     ListOfStrings listOfUse;
     std::string fullListOfUse;
-
     std::cout << "_____________________"<<std::endl;
     for(
         iteratorMap = this->table.begin(); 
@@ -64,14 +63,22 @@ void SymbolTable::printTable() {
     std::cout << "_____________________"<<std::endl;
 }
 
-bool SymbolTable::contains(std::string label){
+Table::iterator SymbolTable::getTablePosition(std::string label) {
     Table::iterator mapEnd = this->table.end();
-    Table::iterator position;
+    Table::iterator position;      
     position = this->table.find(label);
-    if(position == mapEnd) {
-        return false;
+    return position;
+}
+
+bool SymbolTable::contains(std::string label){
+    ListOfStrings listOfUseItems = std::get<LISTOFUSEPOS>(this->table[label]);
+    bool isDefined = std::get<ISDEFINEDPOS>(this->table[label]);
+    if(!listOfUseItems.empty() || isDefined) {
+        // std::cout << "PASSO '1': \t  contains position" << std::endl;
+        return true;
     }
-    return true;
+    // std::cout << "PASSO 1: \t NOT contains position" << std::endl;
+    return false;
 }
 
 ListOfStrings SymbolTable::appendToUsedList(ListOfStrings usedList, ListOfStrings newUsedItems) {
@@ -83,7 +90,7 @@ ListOfStrings SymbolTable::appendToUsedList(ListOfStrings usedList, ListOfString
 
 void SymbolTable::updatesListOfUse(
     std::string label,
-     uint16_t value,
+     std::string value,
      bool isDefined,
      ListOfStrings listOfUseItems 
 ) {
@@ -99,19 +106,21 @@ void SymbolTable::updatesListOfUse(
 
 void SymbolTable::adds(
     std::string label,
-    uint16_t value, 
+    std::string address, 
     bool isDefined, 
     ListOfStrings listOfUseItems
 ){
-    Table::iterator position = this->table.begin();
     Row rowToBeInserted;
-    if(this->contains(label)) {
-        this->updatesListOfUse(label, value, isDefined, listOfUseItems);
-    } else {
-        rowToBeInserted = make_tuple(value, isDefined, listOfUseItems);
-        std::pair<std::string, Row> labelAndContents(label, rowToBeInserted);
-        this->table.insert(position, labelAndContents);  
-    }   
+    if(label != "") {
+        if(this->contains(label)) {
+            this->updatesListOfUse(label, address, isDefined, listOfUseItems);
+        } else {
+            rowToBeInserted = make_tuple(address, isDefined, listOfUseItems);
+            std::pair<std::string, Row> labelAndContents(label, rowToBeInserted);
+            this->table[label] = rowToBeInserted;
+        }  
+        // this->printTable();
+    }
 }
 
 bool SymbolTable::isDefined(std::string label){
@@ -120,9 +129,9 @@ bool SymbolTable::isDefined(std::string label){
     return isDefinedValue;
 }
 
-std::uint16_t SymbolTable::getsAddressValue(std::string label){
+std::string SymbolTable::getsAddressValue(std::string label){
     Row currentRow = this->table[label];
-    bool addressValue = std::get<0>(currentRow);
+    std::string addressValue = std::get<0>(currentRow);
     return addressValue;
 }
 

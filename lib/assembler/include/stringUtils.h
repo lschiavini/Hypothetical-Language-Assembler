@@ -6,6 +6,7 @@
 #include <sstream>
 #include <vector>
 #include <iterator>
+#include<iostream>
 
 typedef std::vector< std::string> ListOfStrings;
 

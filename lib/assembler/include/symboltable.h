@@ -11,8 +11,11 @@
   
 typedef std::vector< std::string> ListOfStrings;
 
-// <value, isDefined, listOfUse>
-typedef std::tuple< uint16_t, bool, ListOfStrings > Row;
+#define VALUEPOS 0
+#define ISDEFINEDPOS 1
+#define LISTOFUSEPOS 2  
+// <address, isDefined, listOfUse>
+typedef std::tuple< std::string, bool, ListOfStrings > Row;
 
 // <label, row>
 typedef std::map<std::string, Row> Table;
@@ -23,7 +26,7 @@ class SymbolTable {
       ListOfStrings appendToUsedList(ListOfStrings usedList, ListOfStrings newUsedItems);
       void updatesListOfUse(
           std::string label,
-          uint16_t value,
+          std::string value,
           bool isDefined,
           ListOfStrings listOfUseItems 
       );
@@ -33,13 +36,14 @@ class SymbolTable {
         SymbolTable();
         void printTable();
         bool contains(std::string label);
+        Table::iterator getTablePosition(std::string label);
         void adds(
             std::string label,
-            uint16_t value, 
+            std::string address, 
             bool isDefined, 
             ListOfStrings newListOfUse);
         bool isDefined(std::string label);
-        std::uint16_t getsAddressValue(std::string label);
+        std::string getsAddressValue(std::string label);
         ListOfStrings getsUsedPositions(std::string label);
 };
 

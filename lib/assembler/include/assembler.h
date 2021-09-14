@@ -6,6 +6,7 @@
 #include <iostream>
 #include <map>
 #include <symboltable.h>
+#include <string>
 
 typedef std::vector< std::string> ListOfStrings;
 typedef std::map<std::string, uint16_t> DirectiveToNumber;
@@ -68,8 +69,8 @@ class Assembler {
         std::fstream * assembledCode;
 
 
-        std::uint16_t currentLine = 0;
-        uint16_t currentAddress = 0;
+        uint16_t currentLine = 0;
+        std::string currentAddress = "0";
         std::string currentToken = "";        
 
         std::string fileName = "binComments.asm";
@@ -126,7 +127,7 @@ class Assembler {
 
         void operatesLabel(
             std::string label,
-            uint16_t addressValue,
+            std::string addressValue,
             bool isDefinition
         );
         void operatesInstruction(std::string instruction);
@@ -143,9 +144,9 @@ class Assembler {
         );
 
         void updatesAllUsedPositions();
-        void updatesAssembledCodeAtAddress(uint16_t addressValue);
+        void updatesAssembledCodeAtAddress(std::string addressValue);
         ListOfStrings getUsedPositionsOfLabel(std::string label);
-        void addsToUsedPosition(std::string label, uint16_t address);
+        void addsToUsedPosition(std::string label, std::string address);
         void readTillNextSectionOrEOF();
 
 };
