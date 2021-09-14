@@ -93,13 +93,16 @@ class Assembler {
 
         void onePassAlgorithm();
         void writeAssembledFile();
-        
+        void processLineRead();
+
+
         // TOKEN
         void resetLineOperands();
-        
+
         void getLabelDefAtLine();
         void getCommentsAtLine();
         void getInstructionAtLine();
+        void setsSizeVectorSpace(std::string strToBeSearched);
         void getArgsAtLine();
 
         void updateCurrentLineAddress();
@@ -114,12 +117,15 @@ class Assembler {
 
         
         std::string getOpCode(std::string token);
-        void operatesLabel(std::string label);
+        void operatesLabel(
+            std::string labelDef,
+            std::string arg1,
+            std::string arg2
+        );
         void operatesInstruction(std::string instruction);
         void operatesConstant(std::string constant);
         
-        void setsSizeVectorSpace(std::string strToBeSearched);
-
+        
         // END TOKEN
 
         void putOnFileLineTable(std::string value);

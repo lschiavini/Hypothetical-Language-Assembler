@@ -64,7 +64,12 @@ bool Assembler::isValidLabel(std::string token) {
     return false;
 }
 
-void Assembler::operatesLabel(std::string label) {
+void Assembler::operatesLabel(
+    std::string labelDef, // TODO: check if empty
+    std::string arg1, // TODO: check if empty
+    std::string arg2 // TODO: check if empty
+) {
+    std::string label = labelDef;
     bool setDefined = false; 
     uint16_t addressValue = this->currentAddress;
     bool isDefined = this->symbolTable.isDefined(this->currentToken);
@@ -92,20 +97,7 @@ void Assembler::operatesLabel(std::string label) {
 
 
 
-// void Assembler::operatesInstruction(std::string instruction) {
-//     this->isValidInstruction(instruction);
-//     DirectiveToNumber mapToSizeInMemory = this->dataToSizeInMemory;
-//     uint16_t sizeVector = 0;
-//     bool isCONST = 0;
-//     if(this->currentToken == "SPACE") {
-//         sizeVector = this->getsSizeVectorSpace();
-//     } else if(this->currentToken == "CONST") {
-//         isCONST = 1;
-//     } else {
-//         mapToSizeInMemory = this->instructToSizeInMemory;
-//     }
-//     this->updatesCurrentAddress(mapToSizeInMemory, sizeVector, isCONST);
-// }
+
 
 // void Assembler::operatesConstant(std::string constant) {
 //     this->putOnFileLineTable(constant);
@@ -141,51 +133,53 @@ void Assembler::updateCurrentLineAddress() {
     }
 }
 
-void Assembler::onePassAlgorithm(){
-
-
-    bool isDefined = this->symbolTable.isDefined(this->labelDef);
-    bool isDefinition = this->isDefinition(this->currentToken);
-
+void Assembler::processLineRead() {
+    // TODO: processLineRead
+    bool isAlreadyDefined = this->symbolTable.isDefined(this->labelDef);
     
+    this->operatesLabel(this->labelDef, this->arg1, this->arg2);
+    // this->operatesInstruction();
+    // this->operatesConstant();
+
+    if( isAlreadyDefined ) {
+        throw ("Semantic Exception at line %d", this->currentLine);
+    }
+         
+}
+
+void Assembler::onePassAlgorithm(){
+  
     while(std::getline(*(this->sourceCode), this->currentLineReading)) {
-        this->resetLineOperands();
-        this->currentLineReading = removeMultipleSpaces(this->currentLineReading);
-        this->getCommentsAtLine();
-        this->getLabelDefAtLine();
-        this->getInstructionAtLine();
-        this->sizeOfLine =  this->instructToSizeInMemory[this->instruction];
-        this->getArgsAtLine();
+        try{
+            this->resetLineOperands();
+            this->currentLineReading = removeMultipleSpaces(this->currentLineReading);
+            this->getCommentsAtLine();
+            this->getLabelDefAtLine();
+            this->getInstructionAtLine();
+            this->sizeOfLine =  this->instructToSizeInMemory[this->instruction];
+            this->getArgsAtLine();
 
-        std::cout << "\tLine:" << this->currentLine
-        << "\tAddress:" << this->currentAddress 
-        << "\tinstruction:" << this->instruction 
-        << "\targ1:" << this->arg1
-        << "\targ2:" << this->arg2 << std::endl;
+            std::cout << "\tLine:" << this->currentLine
+            << "\tAddress:" << this->currentAddress 
+            << "\tinstruction:" << this->instruction 
+            << "\targ1:" << this->arg1
+            << "\targ2:" << this->arg2 << std::endl;
 
-        this->updateCurrentLineAddress();
-        this->currentLine +=1;
+            this->processLineRead();
+            this->updateCurrentLineAddress();
+            this->currentLine +=1;
+        } catch(std::runtime_error& e ) {
+            std::cout << e.what() << '\n';
+        }
+
+        
         // std::cout << "fromSplit    \t" << getListAsString(fromSplit) << "\tSIZE LIST: " << fromSplit.size() <<std::endl;
-
     }
 
     // bool isDefined = this->symbolTable.isDefined(this->currentToken);
     // bool isDefinition = this->isDefinition(this->currentToken);
     // std::cout << "TOKEN\t\t LINE\t ADDRESS\t"<<std::endl;
-            
-    // while( !this->isEOF() ) {    
-    //     if( isDefined && isDefinition ) {
-    //         throw ("Semantic Exception at line %d", currentLine);
-    //     }
-    //     if(this->isLabelFlag) {
-    //         this->operatesLabel(this->currentToken);
-    //     } else if(this->isInstructionFlag) {
-    //         this->operatesInstruction(this->currentToken);
-    //     } else if(this->isConstantFlag) {
-    //         this->operatesConstant(this->currentToken);
-    //     }        
-    //     this->readFile();
-    // }
+              
 }
 
 bool Assembler::isDefinition(std::string token){
@@ -294,7 +288,9 @@ void Assembler::getInstructionAtLine() {
 
 void Assembler::getArgsAtLine() { // could find labelsInline
     this->numberOfArgs = this->sizeOfLine - 1;
-    if(this->numberOfArgs != 0 && this->numberOfArgs < 3) {
+    bool isCONST = this->instruction == "CONST";
+
+    if(isCONST || (this->numberOfArgs != 0 && this->numberOfArgs < 3)) {
         // std::cout << "ARGS:\t numberOfArgs    \t" << this->numberOfArgs <<std::endl;
         this->fromSplit = split(this->currentLineReading, ',');
         // std::cout << "ARGS:\t fromSplit    \t" << getListAsString(this->fromSplit) << "\tSIZE LIST: " << fromSplit.size() <<std::endl;
