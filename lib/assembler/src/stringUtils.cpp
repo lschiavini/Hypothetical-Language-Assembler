@@ -2,6 +2,7 @@
 #include <sstream>
 #include <vector>
 #include <iterator>
+#include <regex>
 #include <stringUtils.h>
 
 template <typename Out>
@@ -31,3 +32,11 @@ std::string getListAsString(ListOfStrings vectorList) {
     }
     return listAsString; 
 }
+
+std::string removeMultipleSpaces(std::string inputString) {
+    std::regex multipleSpaces("\\s+");
+    std::string str = std::regex_replace(inputString, multipleSpaces, std::string(" "));
+    return str;
+}
+ 
+
