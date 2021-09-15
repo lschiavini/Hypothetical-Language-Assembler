@@ -17,22 +17,22 @@ Assembler for simple assembly language with educational purposes. It uses a 14 i
 |     └── main.cpp (principal code of the project)
 |     └── utils.cpp (utils for dealing with files)
 |     └── /includes/ (libraries headers directory)
-|          └── utils.h (refer to utils.cpp)
+|     |    └── utils.h (refer to utils.cpp)
 |     └── /lib/ (libraries source code directory)
-|           └── /args/ (lib for dealing with bash arguments)
-|                  └── /include/args.h
-|                  └── /src/args.cpp
-|                  └── CMakeLists.txt (Cmake build configurations for args)
-|           └── /assembler/ (actual assembler lib)
-|                  └── /include
-|                  |       └── assembler.h
-|                  |       └── stringUtils.h
-|                  |       └── symbolTable.h
-|                  └── /src
-|                  |       └── assembler.cpp (Assembler with onepass algorithm)
-|                  |       └── stringUtils.cpp (deals with common string uses)
-|                  |       └── symbolTable.cpp (operates on symbolTable of usedVales)
-|                  └── CMakeLists.txt (Cmake build configurations for assembler)
+|          └── /args/ (lib for dealing with bash arguments)
+|          |    └── /include/args.h
+|          |              └── /src/args.cpp
+|          |              └── CMakeLists.txt (Cmake build configurations for args)
+|          └── /assembler/ (actual assembler lib)
+|                    └── /include
+|                    |       └── assembler.h
+|                    |       └── stringUtils.h
+|                    |       └── symbolTable.h
+|                    └── /src
+|                    |       └── assembler.cpp (Assembler with onepass algorithm)
+|                    |       └── stringUtils.cpp (deals with common string uses)
+|                    |       └── symbolTable.cpp (operates on symbolTable of usedVales)
+|                    └── CMakeLists.txt (Cmake build configurations for assembler)
 ├── CMakeLists.txt (Cmake build configurations)
 ├── build.sh (building script)
 ├── buildAndRun.sh (builds and runs default /tests/binDataLast.asm)
