@@ -10,7 +10,7 @@ SymbolTable::SymbolTable(){
 }
 
 void SymbolTable::MOCKSymbolTable() {
-    ListOfStrings list;
+    ListOfUsedLabel list;
     //Adds first row
     list.insert(list.begin(), {"7", "9"});
     this->adds("OLD_DATA", "2", true, list);
@@ -28,17 +28,27 @@ void SymbolTable::MOCKSymbolTable() {
     list.erase(list.begin());
 
     //Adds another element of usedList on first row
-    list.insert(list.begin(), {"19"});
+    list.insert(list.begin(), {"19", "12"});
     this->adds("OLD_DATA", "2", true, list);
 
+}
+
+ListOfStrings SymbolTable::fromListOfLabelToStrings(ListOfUsedLabel listOfUseLABEL) {
+    ListOfStrings listOfUseSTRING(listOfUseLABEL.size());
+    for(uint16_t i = 0; i < listOfUseLABEL.size();  i++){
+        DesiredAddressToKeyAddress currentAddresses = listOfUseLABEL[i];
+        listOfUseSTRING[i] = std::get<DESIRED_ADDRESS>(currentAddresses);
+    }
+    return listOfUseSTRING;
 }
 
 void SymbolTable::printRow(std::string label, Row row) {
 
     std::string value = std::get<ADDRESSPOS>(row);
     bool isDefined = std::get<ISDEFINEDPOS>(row);
-    ListOfStrings listOfUse = std::get<LISTOFUSEPOS>(row);
-    std::string fullListOfUse = getListAsString(listOfUse);
+    ListOfUsedLabel listOfUseLABEL = std::get<LISTOFUSEPOS>(row);
+    ListOfStrings listOfUseSTRING = this->fromListOfLabelToStrings(listOfUseLABEL);
+    std::string fullListOfUse = getListAsString(listOfUseSTRING);
 
     if(!removeAllSpaces(value).empty()) {
         std::cout << label << "\t\t| Address = " << 
@@ -53,7 +63,7 @@ void SymbolTable::printTable() {
     std::string label;
     Row row;
     
-    std::cout << "_____________________"<<std::endl;
+    std::cout << "__________________________________________SYMBOL TABLE__________________________________________"<<std::endl;
     for(
         iteratorMap = this->table.begin(); 
         iteratorMap != this->table.end(); 
@@ -64,7 +74,7 @@ void SymbolTable::printTable() {
         row = iteratorMap->second;
         this->printRow(label, row);
     } 
-    std::cout << "_____________________"<<std::endl;
+    std::cout << "________________________________________________________________________________________________"<<std::endl;
 }
 
 Table::iterator SymbolTable::getTablePosition(std::string label) {
@@ -74,7 +84,7 @@ Table::iterator SymbolTable::getTablePosition(std::string label) {
 }
 
 bool SymbolTable::contains(std::string label){
-    ListOfStrings listOfUseItems = std::get<LISTOFUSEPOS>(this->table[label]);
+    ListOfUsedLabel listOfUseItems = std::get<LISTOFUSEPOS>(this->table[label]);
     bool isDefined = std::get<ISDEFINEDPOS>(this->table[label]);
     if(!listOfUseItems.empty() || isDefined) {
         return true;
@@ -82,7 +92,7 @@ bool SymbolTable::contains(std::string label){
     return false;
 }
 
-ListOfStrings SymbolTable::appendToUsedList(ListOfStrings usedList, ListOfStrings newUsedItems) {
+ListOfUsedLabel SymbolTable::appendToUsedList(ListOfUsedLabel usedList, ListOfUsedLabel newUsedItems) {
     for (int i=0; i < newUsedItems.size(); i++ ) {
         usedList.push_back(newUsedItems[i]);
     }
@@ -93,16 +103,16 @@ void SymbolTable::updatesListOfUse(
     std::string label,
      std::string definitionAddress,
      bool isDefinition,
-     ListOfStrings listOfUseItems 
+     ListOfUsedLabel listOfUseItems 
 ) {
     Row rowToBeInserted;
     Row previousRow = this->table[label];
     std::string addressToUse = std::get<ADDRESSPOS>(this->table[label]);
     if(isDefinition) addressToUse = definitionAddress;
 
-    ListOfStrings oldListOfUse = std::get<LISTOFUSEPOS>(previousRow);
+    ListOfUsedLabel oldListOfUse = std::get<LISTOFUSEPOS>(previousRow);
     bool oldIsDefined = std::get<ISDEFINEDPOS>(previousRow);
-    ListOfStrings newListOfUse;
+    ListOfUsedLabel newListOfUse;
     newListOfUse = this->appendToUsedList(oldListOfUse, listOfUseItems);
     
     rowToBeInserted = make_tuple(addressToUse, isDefinition || oldIsDefined, newListOfUse);
@@ -113,12 +123,12 @@ void SymbolTable::adds(
     std::string label,
     std::string address, 
     bool isDefinition, 
-    ListOfStrings listOfUseItems,
+    ListOfUsedLabel listOfUseItems,
     bool isCONSTVal
 ){
     if(isCONSTVal) return;
     Row rowToBeInserted;
-    ListOfStrings emptyList, listToInsert;
+    ListOfUsedLabel emptyList, listToInsert;
     if(isDefinition) {
         listToInsert = emptyList;
     } else listToInsert = listOfUseItems;
@@ -144,13 +154,12 @@ bool SymbolTable::isDefined(std::string label){
 
 std::string SymbolTable::getsAddressValue(std::string label){
     Row currentRow = this->table[label];
-    std::string addressValue = std::get<0>(currentRow);
+    std::string addressValue = std::get<ADDRESSPOS>(currentRow);
     return addressValue;
 }
 
-
-ListOfStrings SymbolTable::getsUsedPositions(std::string label){
+ListOfUsedLabel SymbolTable::getsUsedPositions(std::string label){
     Row currentRow = this->table[label];
-    ListOfStrings usedPositions = std::get<LISTOFUSEPOS>(currentRow);
+    ListOfUsedLabel usedPositions = std::get<LISTOFUSEPOS>(currentRow);
     return usedPositions;
 }

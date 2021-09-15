@@ -8,11 +8,37 @@
 #include <symboltable.h>
 #include <string>
 
+#define ADDRESS_FILELINE 0
+#define OPCODE_FILELINE 1
+#define ARG1_FILELINE 2
+#define ARG2_FILELINE 3
+
+#define DESIRED_ADDRESS 0
+#define ADDRESS_KEY 1
+
 typedef std::vector< std::string> ListOfStrings;
 typedef std::map<std::string, uint16_t> DirectiveToNumber;
+typedef std::map<std::string, std::string> DirectiveToOpCode;
+
+typedef std::tuple<std::string, std::string> DesiredAddressToKeyAddress;
+typedef std::vector<DesiredAddressToKeyAddress> ListOfUsedLabel;
 
 
-typedef std::tuple<std::string, std::string, std::string, std::string, uint16_t > AddressOpcodeArgsLine;
+typedef std::tuple<
+    std::string, 
+    std::string,
+    std::string,
+    std::string
+> AddressOpcodeArgsLine;
+// addressKey = getsAddressForLabel()
+// listOfPositions = getUsedPositionsFromLabel()
+
+// positionVector = addressDesired - address
+// AddressOpcodeArgsLine oldLine = myFile[addressKey]
+// FileLines myFile[addressKey]
+
+
+// map<[addressKey] [address, opcode, arg1, arg2, lineFile]>
 // address opcode/value arg1 arg2 lineOriginalFile 
 typedef std::map<std::string, AddressOpcodeArgsLine > FileLines;
 
@@ -22,22 +48,22 @@ class Assembler {
         ~Assembler();
         void assembleFile();
     private:
-        DirectiveToNumber instructionToOpcode = {
-            {"SPACE", 0},
-            {"ADD", 1},
-            {"SUB", 2},
-            {"MULT", 3},
-            {"DIV", 4},
-            {"JMP", 5},
-            {"JMPN", 6},
-            {"JMPP", 7},
-            {"JMPZ", 8},
-            {"COPY", 9},
-            {"LOAD", 10},
-            {"STORE", 11},
-            {"INPUT", 12},
-            {"OUTPUT", 13},
-            {"STOP", 14}
+        DirectiveToOpCode instructionToOpcode = {
+            {"SPACE", "00"},
+            {"ADD", "01"},
+            {"SUB", "02"},
+            {"MULT", "03"},
+            {"DIV", "04"},
+            {"JMP", "05"},
+            {"JMPN", "06"},
+            {"JMPP", "07"},
+            {"JMPZ", "08"},
+            {"COPY", "09"},
+            {"LOAD", "10"},
+            {"STORE", "11"},
+            {"INPUT", "12"},
+            {"OUTPUT", "13"},
+            {"STOP", "14"}
         };
         DirectiveToNumber instructToSizeInMemory = { // shows Number of arguments valueMap.second-1 
             {"ADD", 2},
@@ -55,9 +81,7 @@ class Assembler {
             {"OUTPUT", 2},
             {"STOP", 1},
             {"SPACE", 1},
-            {"CONST", 1}, // TODO: CHANGE THIS
-        };  
-        DirectiveToNumber dataToSizeInMemory = {
+            {"CONST", 1},
         };  
 
 
@@ -65,7 +89,6 @@ class Assembler {
         FileLines fileLineTable;
 
         std::fstream * sourceCode;
-        std::fstream * assemblingCode; // TODO: DO I NEED *assemblingCode?
         std::fstream * assembledCode;
 
 
@@ -78,6 +101,7 @@ class Assembler {
         // TESTING
         void printsMaps();
         void printsCurrentLine();
+        void printsFileLine(std::string address);
         
         // END OF TESTING
 
@@ -95,12 +119,9 @@ class Assembler {
 
         void onePassAlgorithm();
         void writeAssembledFile();
-        void processLineRead();
 
 
-        // TOKEN
         void resetLineOperands();
-
         void getLabelDefAtLine();
         void getCommentsAtLine();
         void getInstructionAtLine();
@@ -108,16 +129,20 @@ class Assembler {
         void setsSizeLine();
         void getArgsAtLine();
 
+        void processLineRead();
+        void populatesFileLine();
+
         void updateCurrentLineAddress();
 
+        // TOKEN
 
-            // VERIFIERS
-            bool isDataDirective(std::string token);
-            bool isValidInstruction(std::string token);
-            void validateLabel(std::string token);
-            void validateInstruction(std::string token);
-            void semanticValidator(); // TODO semanticValidator
-            // END VERIFIERS
+        // VERIFIERS
+        bool isValidInstruction(std::string token);
+        void validateLabel(std::string token);
+        void validateInstruction(std::string token);
+        void semanticValidator(); // TODO semanticValidator
+        void hasMoreThanOneSameSection(); // TODO hasMoreThanOneSameSection
+        // END VERIFIERS
 
         
         std::string getOpCode(std::string token);
@@ -146,11 +171,9 @@ class Assembler {
             bool isCONST
         );
 
-        void updatesAllUsedPositions();
-        void updatesAssembledCodeAtAddress(std::string addressValue);
-        ListOfStrings getUsedPositionsOfLabel(std::string label);
-        void addsToUsedPosition(std::string label, std::string address);
-        void readTillNextSectionOrEOF();
+        void updatesAllUsedPositions(std::string label, ListOfUsedLabel usedLabels);
+        void updatesAssembledCodeAtAddress(std::string addressValue , DesiredAddressToKeyAddress position);
+        void addsToUsedPosition(std::string value, DesiredAddressToKeyAddress position);
 
 };
 

@@ -17,15 +17,16 @@ Assembler::Assembler(std::fstream *source, std::string fileName){
 
 void Assembler::printsMaps() {
     DirectiveToNumber::iterator iteratorMap;
+    DirectiveToOpCode::iterator opcodeMap;
     std::cout << "__________INSTRUCTION TO OPCODE___________"<<std::endl;
     for(
-        iteratorMap = this->instructionToOpcode.begin(); 
-        iteratorMap != this->instructionToOpcode.end(); 
-        ++iteratorMap 
+        opcodeMap = this->instructionToOpcode.begin(); 
+        opcodeMap != this->instructionToOpcode.end(); 
+        ++opcodeMap 
     )
     {
-        std::cout << iteratorMap->first << "\t| " 
-        <<  iteratorMap->second << std::endl;
+        std::cout << opcodeMap->first << "\t| " 
+        <<  opcodeMap->second << std::endl;
     } 
     std::cout << "_____________________"<<std::endl;
 
@@ -90,27 +91,28 @@ void Assembler::operatesLabel(
     bool isCONSTValue = this->instruction == "CONST" && (addressLabelDef != labelAddress);
     this->validateLabel(label);
     bool isDefined = this->symbolTable.isDefined(label);
-    if(isDefinition) {
-        if(isDefined) {
-            error = "Semantic Error at line " + std::to_string(this->currentLine) + ". Label " + label +" already exists";
-            throw error;
-        }
+    std::string addressKey = this->symbolTable.getsAddressValue(label);
+    DesiredAddressToKeyAddress desiredToKey = make_tuple(labelAddress, addressKey);
+    if(isDefinition && isDefined) {
+        error = "Semantic Error at line " + std::to_string(this->currentLine) + ". Label " + label +" already exists";
+        throw error;
     } 
     this->symbolTable.adds(
         label,
         addressLabelDef,
         isDefinition,
-        {labelAddress},
+        {desiredToKey},
         isCONSTValue
     );
-    if(isDefined) {
-        std::string addressToReplace = this->symbolTable.getsAddressValue(label);
-        this->updatesAssembledCodeAtAddress(addressToReplace);
-    } else {
-        this->addsToUsedPosition(label, labelAddress);
+    if(isDefined) {        
+        this->updatesAssembledCodeAtAddress(addressLabelDef, desiredToKey);
+    } else if(isDefinition) {
+        std::string addressKey = this->symbolTable.getsAddressValue(label);
+        ListOfUsedLabel allUsedPositions = this->symbolTable.getsUsedPositions(label);
+        this->updatesAllUsedPositions(addressKey, allUsedPositions);
     }
         
-}
+}  
 
 void Assembler::operatesLabelsForLine(
     std::string labelDef,
@@ -174,7 +176,7 @@ void Assembler::operatesLabelsForLine(
 void Assembler::resetLineOperands() {
     this->comment = "";
     this->labelDef = "";
-    this->instruction = ""; // opcode or value
+    this->instruction = "";
     this->vectorSpace = "0";
     this->arg1 = "";
     this->arg2 = "";
@@ -204,13 +206,40 @@ void Assembler::updateCurrentLineAddress() {
 void Assembler::processLineRead() {
     // TODO: processLineRead
     this->operatesLabelsForLine(this->labelDef, this->arg1, this->arg2);
+    this->populatesFileLine();
     // this->operatesInstruction();
 
 }
 
-void Assembler::printsCurrentLine() {
-    uint16_t howManyTabsBetweenInstrArgs = 1;
+void Assembler::populatesFileLine() {
+    std::string opCode = arg1;
+    if(this->instruction != "CONST") {
+        opCode = this->instructionToOpcode[this->instruction];
+    }
 
+    AddressOpcodeArgsLine newLine = make_tuple(
+        this->currentAddress,
+        opCode,
+        this->arg1,
+        this->arg2
+    );
+    this->fileLineTable[this->currentAddress] = newLine;
+    // this->printsFileLine(this->currentAddress);
+}
+
+void Assembler::printsFileLine(std::string address) {
+    std::string addressKey = address;
+    if (address.empty()) addressKey = this->currentAddress;
+    AddressOpcodeArgsLine fileLineToPrint = this->fileLineTable[addressKey];
+
+    std::cout << "\tAddress:" << std::get<ADDRESS_FILELINE>(fileLineToPrint)
+    << "\tinstruction:" << std::get<OPCODE_FILELINE>(fileLineToPrint)  << "   "
+    << "\targ1:" << std::get<ARG1_FILELINE>(fileLineToPrint) << "     "
+    << "arg2:" << std::get<ARG2_FILELINE>(fileLineToPrint) << std::endl;
+
+}
+
+void Assembler::printsCurrentLine() {
     std::cout << "\tLine:" << this->currentLine
     << "\tAddress:" << this->currentAddress 
     << "\tlabelDef:[" << this->labelDef <<"]"
@@ -383,18 +412,47 @@ void Assembler::getArgsAtLine() {
 }
 
 
-void Assembler::updatesAssembledCodeAtAddress(std::string addressValue) {
-    // TODO updatesAssembledCodeAtPosition
+void Assembler::updatesAssembledCodeAtAddress(
+    std::string addressValue, 
+    DesiredAddressToKeyAddress position
+) {
+    // std::string addressKey = std::get<ADDRESS_KEY>(position);
+    // int addressDesired =  stoi(std::get<DESIRED_ADDRESS>(position));
+    // int positionAtFileLineTuple = addressDesired - stoi(addressKey);
+    // AddressOpcodeArgsLine oldLine = this->fileLineTable[addressKey];
+    // ListOfStrings oldLineStrings = {
+    //     std::get<ADDRESS_FILELINE>(oldLine),
+    //     std::get<OPCODE_FILELINE>(oldLine),
+    //     std::get<ARG1_FILELINE>(oldLine),
+    //     std::get<ARG2_FILELINE>(oldLine)        
+    // };
+
+    // std::string newArgs = "";
+    // for (int i = 0; i < 4; i++) {
+    //     std::string currentVal = oldLineStrings[i];
+    //     newArgs += currentVal + "|";
+    //     if(i == positionAtFileLineTuple) {
+    //         newArgs = addressValue + "|";
+    //     }
+    // }
+    // ListOfStrings newArgsList = split(newArgs, '|');
+    // AddressOpcodeArgsLine newLine = make_tuple(
+    //     newArgsList[0],
+    //     newArgsList[1],
+    //     newArgsList[2],
+    //     newArgsList[3]
+    // );
+    // this->fileLineTable[addressKey] = newLine;
 }
 
-void Assembler::updatesAllUsedPositions() {
-
-    // TODO updatesAllUsedPositions
+void Assembler::updatesAllUsedPositions(std::string addressValue, ListOfUsedLabel usedLabels) {
+    for(int i = 0; i < usedLabels.size(); i++)
+    {
+        DesiredAddressToKeyAddress desiredToKey = usedLabels[i];
+        this->updatesAssembledCodeAtAddress(addressValue, desiredToKey);
+    }
 }
-
-void Assembler::addsToUsedPosition(std::string label, std::string address) {
-    // TODO addsToUsedPosition
-}
+      
 
 void Assembler::writeAssembledFile() {
     std::string finalFileName = this->fileName.substr(0,this->fileName.find_last_of('.'))+".obj";
