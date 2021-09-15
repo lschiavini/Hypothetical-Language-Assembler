@@ -7,7 +7,7 @@ Assembler for simple assembly language with educational purposes. It uses a 14 i
 ### Table of supported operations
 
 <p align="center">
-  <img  src="https://github.com/lschiavini/Hypothetical-Language-Assembler/blob/master/docs/instructionsTable.png">
+  <img  src="https://github.com/lschiavini/Hypothetical-Language-Assembler/blob/main/docs/instructionsTable.png">
 </p>
 
 ## Project Structure:
