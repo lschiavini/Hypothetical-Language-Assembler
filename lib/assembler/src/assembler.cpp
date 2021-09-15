@@ -288,19 +288,18 @@ void Assembler::updateCurrentLineAddress() {
 }
 
 void Assembler::processLineRead() {
-    // TODO: processLineRead
+    this->populatesFileLine();
     this->operatesLabelsForLine(this->labelDef, this->arg1, this->arg2);
-    
-    // this->operatesInstruction();
 
 }
 
 void Assembler::populatesFileLine() {
-    std::string opCode = this->arg1;
-    if(this->instruction != "CONST") {
-        opCode = this->instructionToOpcode[this->instruction];
+    std::string opCode = this->instructionToOpcode[this->instruction];
+    if(this->instruction == "CONST") {
+        opCode = this->arg1;
+        // this->arg1 = "";
     }
-
+    
     AddressOpcodeArgsLine newLine = make_tuple(
         this->currentAddress,
         opCode,
@@ -353,6 +352,8 @@ void Assembler::onePassAlgorithm(){
             this->getLabelDefAtLine();
             
             this->getInstructionAtLine();
+            
+std::cout << "\n this->instruction "<< this->instruction << std::endl;
 
             this->setsSizeLine();
             this->getArgsAtLine();
@@ -431,12 +432,14 @@ void Assembler::getInstructionAtLine() {
     this->currentLineReading = trimFirstAndLastWhiteSpace(this->currentLineReading);
     this->fromSplit = split(this->currentLineReading, ' ');
 
+    isSTOP = this->fromSplit.at(0) == "STOP";
     instructionFound = this->fromSplit.size() > 1;
     isSPACE = this->fromSplit.at(0).find("SPACE") != std::string::npos;
     isSECTION = this->fromSplit.at(0) == "SECTION";
     isCOPY = this->fromSplit.at(0) == "COPY";
-    isSTOP = this->fromSplit.at(0) == "STOP";
     
+    if(isSTOP) this->instruction = this->fromSplit.at(0);
+        
     if(instructionFound) {
         this->instruction = this->fromSplit.at(0);
         
@@ -451,10 +454,11 @@ void Assembler::getInstructionAtLine() {
         // } 
         this->currentLineReading = this->fromSplit.at(1);
         
-    } else if (isSTOP) {
-            this->instruction = "STOP";
-            // std::cout << "INSTRUCTION:\t instruction    \t" << this->instruction <<std::endl;
-            this->currentLineReading = this->fromSplit.at(0);
+    // } 
+    // else if (isSTOP) {
+    //         this->instruction = "STOP";
+    //         // std::cout << "INSTRUCTION:\t instruction    \t" << this->instruction <<std::endl;
+    //         this->currentLineReading = this->fromSplit.at(0);
     } else if (isSPACE) {
         this->instruction = "SPACE";
         this->setsSizeVectorSpace(this->fromSplit.at(0));
@@ -479,8 +483,9 @@ void Assembler::getArgsAtLine() {
     this->numberOfArgs = this->sizeOfLine - 1;
     bool isCONST = this->instruction == "CONST";
     bool isSPACE = this->instruction == "SPACE";
+    bool isSTOP = this->instruction == "STOP";
 //  std::cout << "ARGS:\t numberOfArgs    \t" << this->numberOfArgs <<std::endl;
-    bool shouldReadArgs = !isSPACE && 
+    bool shouldReadArgs = !isSPACE && !isSTOP &&
     (isCONST || (this->numberOfArgs != 0 && this->numberOfArgs < 3));
 
     // std::cout << "ARGS:\t this->currentLineReading    \t" << this->currentLineReading <<std::endl;
@@ -501,17 +506,17 @@ void Assembler::getArgsAtLine() {
         }
 
         // else 
-        if(isCONST){
-            // this->instruction = this->arg1;
-            // this->currentAddress = this->currentAddress + 1;
-            this->arg1 = "";
-            this->arg2 = "";
-        }
+        // if(isCONST){
+        //     // this->instruction = this->arg1;
+        //     // this->currentAddress = this->currentAddress + 1;
+        //     this->arg1 = "";
+        //     this->arg2 = "";
+        // }
         //     this->currentLineReading = this->fromSplit.at(0);
         // std::cout << "ARGS:\t Args\t" << this->arg1 << " " <<  this->arg2 <<std::endl;
         
         // std::cout << "ARGS:\t fromSplit    \t" << getListAsString(this->fromSplit) << "\tSIZE LIST: " << fromSplit.size() <<std::endl;
-    }   
+    }
 }
 
 void Assembler::writeAssembledFile() {
@@ -526,20 +531,20 @@ void Assembler::writeAssembledFile() {
     while (it != this->fileLineTable.end())
     {
         uint16_t key = it->first;
-
         AddressOpcodeArgsLine lineToWrite = it->second;
         uint16_t address  = std::get<ADDRESS_FILELINE>(lineToWrite);
         std::string opCODE = std::get<OPCODE_FILELINE>(lineToWrite);
         std::string arg1 = std::get<ARG1_FILELINE>(lineToWrite); 
         std::string arg2 = std::get<ARG2_FILELINE>(lineToWrite); 
 
+        bool isCONST = arg1 == opCODE;
         
-        this->printsFileLine(key);
+        // this->printsFileLine(key);
         std::string outputString = opCODE + " ";
-        if(!arg1.empty() && opCODE != "CONST") outputString += arg1 + " ";
+        if(!arg1.empty() && !isCONST) outputString += arg1 + " ";
         if(!arg2.empty()) outputString += arg2 + " ";
         
-        std::cout << "\n OUTPUTING outputString " << outputString << std::endl;
+        // std::cout << "\n OUTPUTING outputString " << outputString << std::endl;
         output << outputString;
 
         it++;
