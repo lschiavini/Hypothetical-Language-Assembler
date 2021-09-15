@@ -11,7 +11,7 @@
   
 typedef std::vector< std::string> ListOfStrings;
 
-#define VALUEPOS 0
+#define ADDRESSPOS 0
 #define ISDEFINEDPOS 1
 #define LISTOFUSEPOS 2  
 // <address, isDefined, listOfUse>
@@ -42,7 +42,9 @@ class SymbolTable {
             std::string label,
             std::string address, 
             bool isDefinition, 
-            ListOfStrings newListOfUse);
+            ListOfStrings newListOfUse,
+            bool isCONSTVal = false
+          );
         bool isDefined(std::string label);
         std::string getsAddressValue(std::string label);
         ListOfStrings getsUsedPositions(std::string label);

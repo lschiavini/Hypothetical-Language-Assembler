@@ -67,7 +67,7 @@ void Assembler::validateLabel(std::string token) {
     std::string specificError = "";
     int sizeToken = token.size();
     std::regex regexExp("([a-zA-Z_][a-zA-Z0-9_]+)");
-    bool hasCorrectChars = std::regex_match(token, regexExp); 
+    bool hasCorrectChars = std::regex_match(token, regexExp) || this->instruction == "CONST"; 
     bool validLabel = sizeToken <= 50 && hasCorrectChars;
     if(this->isValidInstruction(token) || validLabel) {
         return;
@@ -87,6 +87,7 @@ void Assembler::operatesLabel(
     std::string labelAddress
 ) {
     std::string error = "";
+    bool isCONSTValue = this->instruction == "CONST" && (addressLabelDef != labelAddress);
     this->validateLabel(label);
     bool isDefined = this->symbolTable.isDefined(label);
     if(isDefinition) {
@@ -95,7 +96,13 @@ void Assembler::operatesLabel(
             throw error;
         }
     } 
-    this->symbolTable.adds(label, addressLabelDef, isDefinition, {labelAddress});
+    this->symbolTable.adds(
+        label,
+        addressLabelDef,
+        isDefinition,
+        {labelAddress},
+        isCONSTValue
+    );
     if(isDefined) {
         std::string addressToReplace = this->symbolTable.getsAddressValue(label);
         this->updatesAssembledCodeAtAddress(addressToReplace);
@@ -291,6 +298,7 @@ void Assembler::getInstructionAtLine() {
     if (this->currentLineReading.empty()) return;
     bool instructionFound = false;
     bool isSPACE = false;
+    bool isCONST = false;
     bool isSECTION = false;
     bool isCOPY = false;
     bool isSTOP = false;
@@ -356,16 +364,18 @@ void Assembler::getArgsAtLine() {
             this->arg1 = this->fromSplit.at(0);
             this->arg2 = this->fromSplit.at(1);
             this->currentLineReading = this->fromSplit.at(1);
-        } else if(isCONST){
-            this->instruction = this->fromSplit.at(0);
-            this->arg1 = "";
-            this->arg2 = "";
-            this->currentLineReading = this->fromSplit.at(0);
         } else {
             this->arg1 = this->fromSplit.at(0);
             this->arg2 = "";
             this->currentLineReading = this->fromSplit.at(0);
         }
+
+        // else if(isCONST){
+        //     this->instruction = this->fromSplit.at(0);
+        //     this->currentAddress = std::to_string(stoi(this->currentAddress) + 1);
+        //     this->arg1 = "";
+        //     this->arg2 = "";
+        //     this->currentLineReading = this->fromSplit.at(0);
         // std::cout << "ARGS:\t Args\t" << this->arg1 << " " <<  this->arg2 <<std::endl;
         
         // std::cout << "ARGS:\t fromSplit    \t" << getListAsString(this->fromSplit) << "\tSIZE LIST: " << fromSplit.size() <<std::endl;

@@ -35,7 +35,7 @@ void SymbolTable::MOCKSymbolTable() {
 
 void SymbolTable::printRow(std::string label, Row row) {
 
-    std::string value = std::get<VALUEPOS>(row);
+    std::string value = std::get<ADDRESSPOS>(row);
     bool isDefined = std::get<ISDEFINEDPOS>(row);
     ListOfStrings listOfUse = std::get<LISTOFUSEPOS>(row);
     std::string fullListOfUse = getListAsString(listOfUse);
@@ -91,17 +91,21 @@ ListOfStrings SymbolTable::appendToUsedList(ListOfStrings usedList, ListOfString
 
 void SymbolTable::updatesListOfUse(
     std::string label,
-     std::string value,
+     std::string definitionAddress,
      bool isDefinition,
      ListOfStrings listOfUseItems 
 ) {
     Row rowToBeInserted;
     Row previousRow = this->table[label];
+    std::string addressToUse = std::get<ADDRESSPOS>(this->table[label]);
+    if(isDefinition) addressToUse = definitionAddress;
+
     ListOfStrings oldListOfUse = std::get<LISTOFUSEPOS>(previousRow);
     bool oldIsDefined = std::get<ISDEFINEDPOS>(previousRow);
     ListOfStrings newListOfUse;
     newListOfUse = this->appendToUsedList(oldListOfUse, listOfUseItems);
-    rowToBeInserted = make_tuple(value, isDefinition || oldIsDefined, newListOfUse);
+    
+    rowToBeInserted = make_tuple(addressToUse, isDefinition || oldIsDefined, newListOfUse);
     this->table[label] = rowToBeInserted;
 }
 
@@ -109,8 +113,10 @@ void SymbolTable::adds(
     std::string label,
     std::string address, 
     bool isDefinition, 
-    ListOfStrings listOfUseItems
+    ListOfStrings listOfUseItems,
+    bool isCONSTVal
 ){
+    if(isCONSTVal) return;
     Row rowToBeInserted;
     ListOfStrings emptyList, listToInsert;
     if(isDefinition) {
