@@ -33,3 +33,5 @@
 bin/main
 
 .vscode/
+
+bin/
