@@ -230,7 +230,6 @@ void Assembler::populatesFileLine() {
 
 void Assembler::printsFileLine(uint16_t address) {
     uint16_t addressKey = address;
-    if (address == 0) addressKey = this->currentAddress;
     AddressOpcodeArgsLine fileLineToPrint = this->fileLineTable[addressKey];
 
     std::cout << "\tAddress:" << std::get<ADDRESS_FILELINE>(fileLineToPrint)
@@ -432,14 +431,11 @@ void Assembler::updatesAssembledCodeAtAddress(
     DesiredAddressToKeyAddress position
 ) {
     uint16_t addressKey = std::get<ADDRESS_KEY>(position);
-    if(addressKey == 0) return;
+    if(addressKey < 0) return;
     int addressDesired =  std::get<DESIRED_ADDRESS>(position);    
     int positionAtFileLineTuple =  addressDesired - addressKey;
 
 
-    // std::cout << "HEREEEEEEEEEEEEEEEEE addressDesired = " << addressDesired << std::endl;
-    // std::cout << "HEREEEEEEEEEEEEEEEEE addressKey = " << addressKey << std::endl;
-    // std::cout << "HEREEEEEEEEEEEEEEEEE positionAtFileLineTuple = " << positionAtFileLineTuple << std::endl;
     
 
     AddressOpcodeArgsLine oldLine = this->fileLineTable[addressKey];
@@ -449,17 +445,27 @@ void Assembler::updatesAssembledCodeAtAddress(
     std::string newArg2 = std::get<ARG2_FILELINE>(oldLine); 
 
     if(positionAtFileLineTuple == 1) {
-        newArg1 = addressValueDef;
+        newArg1 = std::to_string(addressValueDef);
     } else if(positionAtFileLineTuple == 2) {
-        newArg2 = addressValueDef;
+        newArg2 = std::to_string(addressValueDef);
     }        
     
+    std::cout << "\n\n\nHEREEEEEEEEEEEEEEEEE addressDesired = " << addressDesired << std::endl;
+    std::cout << "HEREEEEEEEEEEEEEEEEE addressKey = " << addressKey << std::endl;
+    std::cout << "HEREEEEEEEEEEEEEEEEE addressValueDef = " << addressValueDef << std::endl;
+    std::cout << "HEREEEEEEEEEEEEEEEEE positionAtFileLineTuple = " << positionAtFileLineTuple << std::endl;
+    std::cout << "HEREEEEEEEEEEEEEEEEE oldAddress = " << oldAddress << std::endl;
+    std::cout << "HEREEEEEEEEEEEEEEEEE oldOpCODE = " << oldOpCODE << std::endl;
+    std::cout << "HEREEEEEEEEEEEEEEEEE newArg1 = " << newArg1 << std::endl;
+    std::cout << "HEREEEEEEEEEEEEEEEEE newArg2 = " << newArg2 << std::endl;
+    
+
     AddressOpcodeArgsLine newLine = make_tuple(
-            oldAddress,
-            oldOpCODE,
-            newArg1,
-            newArg2
-        );
+        oldAddress,
+        oldOpCODE,
+        newArg1,
+        newArg2
+    );
 
 
     // std::cout << "HEREEEEEEEEEEEEEEEEE newArgsList[3] = " << newArgsList[3] << std::endl;
