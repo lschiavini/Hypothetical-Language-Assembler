@@ -8,7 +8,7 @@ Assembler for simple assembly language with educational purposes. It uses a 14 i
 
 
 ## Project Structure:
-
+```
 ├── README.md (This file)
 ├── /docs
 │ └── trabalho1.pdf (Specifications in portuguese)
@@ -36,7 +36,7 @@ Assembler for simple assembly language with educational purposes. It uses a 14 i
 ├── CMakeLists.txt (Cmake build configurations)
 ├── build.sh (building script)
 ├── buildAndRun.sh (builds and runs default /tests/binDataLast.asm)
-
+```
 ## Environment:
 
 OS: Linux
