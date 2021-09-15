@@ -35,6 +35,7 @@ class SymbolTable {
         ~SymbolTable();
         SymbolTable();
         void printTable();
+        void printRow(std::string label, Row row);
         bool contains(std::string label);
         Table::iterator getTablePosition(std::string label);
         void adds(
