@@ -93,15 +93,16 @@ ListOfStrings SymbolTable::appendToUsedList(ListOfStrings usedList, ListOfString
 void SymbolTable::updatesListOfUse(
     std::string label,
      std::string value,
-     bool isDefined,
+     bool isDefinition,
      ListOfStrings listOfUseItems 
 ) {
     Row rowToBeInserted;
     Row previousRow = this->table[label];
     ListOfStrings oldListOfUse = std::get<LISTOFUSEPOS>(previousRow);
+    bool oldIsDefined = std::get<ISDEFINEDPOS>(previousRow);
     ListOfStrings newListOfUse;
     newListOfUse = this->appendToUsedList(oldListOfUse, listOfUseItems);
-    rowToBeInserted = make_tuple(value, isDefined, newListOfUse);
+    rowToBeInserted = make_tuple(value, isDefinition || oldIsDefined, newListOfUse);
     this->table[label] = rowToBeInserted;
 }
 
@@ -120,11 +121,12 @@ void SymbolTable::adds(
     if(!removeAllSpaces(label).empty()) {
         if(this->contains(label)) {
             bool setIsDefined = this->isDefined(label);
-            this->updatesListOfUse(label, address, true, listToInsert);
+            this->updatesListOfUse(label, address, isDefinition, listToInsert);
         } else {
             rowToBeInserted = make_tuple(address, isDefinition, listToInsert);
             std::pair<std::string, Row> labelAndContents(label, rowToBeInserted);
             this->table[label] = rowToBeInserted;
+            // this->printRow(label, rowToBeInserted);
         }
     }
 }

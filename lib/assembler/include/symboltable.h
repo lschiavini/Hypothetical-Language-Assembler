@@ -27,7 +27,7 @@ class SymbolTable {
       void updatesListOfUse(
           std::string label,
           std::string value,
-          bool isDefined,
+          bool isDefinition,
           ListOfStrings listOfUseItems 
       );
     public:
@@ -41,7 +41,7 @@ class SymbolTable {
         void adds(
             std::string label,
             std::string address, 
-            bool isDefined, 
+            bool isDefinition, 
             ListOfStrings newListOfUse);
         bool isDefined(std::string label);
         std::string getsAddressValue(std::string label);
