@@ -58,13 +58,10 @@ void Assembler::operatesLabel(
 ) {
     std::string error = "";
     this->isValidLabel(label);
-
     bool isDefined = this->symbolTable.isDefined(label);
-
     if(isDefinition) {
         if(isDefined) {
-            error = "Semantic Error at line " + std::to_string(this->currentLine) + "Label " + label +" already exists";
-            std::cout << error << std::endl;
+            error = "Semantic Error at line " + std::to_string(this->currentLine) + ". Label " + label +" already exists";
             throw error;
         }
     } 
@@ -172,7 +169,7 @@ void Assembler::processLineRead() {
     // TODO: processLineRead
     this->operatesLabelsForLine(this->labelDef, this->arg1, this->arg2);
     // this->operatesInstruction();
-             
+
 }
 
 void Assembler::printsCurrentLine() {
