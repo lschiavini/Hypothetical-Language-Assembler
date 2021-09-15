@@ -22,19 +22,19 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}./../bin)
 
 
 # target
-add_executable( main ./src/main.cpp ./src/utils.cpp )
+add_executable( assemblerMain ./src/main.cpp ./src/utils.cpp )
 
 # 3rd party lib
 add_subdirectory( ./lib/args )
-target_link_libraries( main args )
+target_link_libraries( assemblerMain args )
 
 # 3rd party lib
 add_subdirectory( ./lib/assemblerErrors )
-target_link_libraries( main assemblerErrors )
+target_link_libraries( assemblerMain assemblerErrors )
 
 # 3rd party lib
 add_subdirectory( ./lib/assembler )
-target_link_libraries( main assembler )
+target_link_libraries( assemblerMain assembler )
 
 # Statical libs
 add_library (utils STATIC src/utils.cpp)

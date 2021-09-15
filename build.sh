@@ -10,6 +10,3 @@ cmake ..
 make
 cd ..
 rm -rf build
-
-# run
-./bin/assemblerMain ./tests/binDataLast.asm
