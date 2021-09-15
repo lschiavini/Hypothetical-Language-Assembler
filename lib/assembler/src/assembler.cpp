@@ -104,16 +104,99 @@ void Assembler::operatesLabel(
         {desiredToKey},
         isCONSTValue
     );
-    if(isDefined) {        
+    this->populatesFileLine();
+    if(isDefined) {     
+        uint16_t addressDefKey = this->symbolTable.getsAddressValue(label);   
+        // this->updatesAssembledCodeAtAddress(addressDefKey, desiredToKey);
+        ListOfUsedLabel listOfPositions = this->symbolTable.getsUsedPositions(label);
+        this->updatesAllUsedPositions(addressDefKey, listOfPositions);
+    } else 
+    if(isDefinition) {
+        
+        uint16_t addressDefKey = this->symbolTable.getsAddressValue(label);   
+        // this->updatesAssembledCodeAtAddress(addressDefKey, desiredToKey);
+        ListOfUsedLabel listOfPositions = this->symbolTable.getsUsedPositions(label);
 
-        this->updatesAssembledCodeAtAddress(addressLabelDef, desiredToKey);
-    } else if(isDefinition) {
-        uint16_t addressDefKey = this->symbolTable.getsAddressValue(label);
-        ListOfUsedLabel allUsedPositions = this->symbolTable.getsUsedPositions(label);
+        ListOfUsedLabel allUsedPositions = listOfPositions;
+        if(allUsedPositions.empty()) allUsedPositions = {desiredToKey};
         this->updatesAllUsedPositions(addressDefKey, allUsedPositions);
+
+        // std::cout << "GOT HEEERERERERRERE = " << std::endl;
+        //     uint16_t addressDefKey = this->symbolTable.getsAddressValue(label);
+            
+        // std::cout << "addressDefKey = " << addressDefKey << std::endl;
+        //     ListOfUsedLabel allUsedPositions = {desiredToKey};
+            
+        // ListOfUsedLabel listOfPositions = this->symbolTable.getsUsedPositions(label);
+        //     ListOfUInts allUsedPositionsSTR = this->symbolTable.fromListOfLabelToUints(allUsedPositions);
+        // std::cout << "allUsedPositions = " << getListAsStringUint(allUsedPositionsSTR) << std::endl;
+        
+        // this->updatesAllUsedPositions(addressDefKey, allUsedPositions);
     }
         
 }  
+
+void Assembler::updatesAssembledCodeAtAddress(
+    uint16_t addressValueDef, 
+    DesiredAddressToKeyAddress position
+) {
+    uint16_t addressKey = std::get<ADDRESS_KEY>(position);
+    // std::cout << "HEREEEEEEEEEEEEEEEEE addressKey = " << addressKey << std::endl;
+    // std::cout << "HEREEEEEEEEEEEEEEEEE addressValueDef = " << addressValueDef << std::endl;
+    
+    if(addressKey < 0) return;
+    int addressDesired =  std::get<DESIRED_ADDRESS>(position);    
+    int positionAtFileLineTuple =  addressDesired - addressKey;
+
+
+    
+
+    AddressOpcodeArgsLine oldLine = this->fileLineTable[addressKey];
+    uint16_t oldAddress  = std::get<ADDRESS_FILELINE>(oldLine);
+    std::string oldOpCODE = std::get<OPCODE_FILELINE>(oldLine);
+    std::string newArg1 = std::get<ARG1_FILELINE>(oldLine); 
+    std::string newArg2 = std::get<ARG2_FILELINE>(oldLine); 
+
+    if(positionAtFileLineTuple == 1) {
+        newArg1 = std::to_string(addressValueDef);
+    } else if(positionAtFileLineTuple == 2) {
+        newArg2 = std::to_string(addressValueDef);
+    }        
+    
+    // std::cout << "\n\n\nHEREEEEEEEEEEEEEEEEE addressDesired = " << addressDesired << std::endl;
+    // std::cout << "HEREEEEEEEEEEEEEEEEE addressValueDef = " << addressValueDef << std::endl;
+    // std::cout << "HEREEEEEEEEEEEEEEEEE positionAtFileLineTuple = " << positionAtFileLineTuple << std::endl;
+    // std::cout << "HEREEEEEEEEEEEEEEEEE oldAddress = " << oldAddress << std::endl;
+    // std::cout << "HEREEEEEEEEEEEEEEEEE oldOpCODE = " << oldOpCODE << std::endl;
+    // std::cout << "HEREEEEEEEEEEEEEEEEE newArg1 = " << newArg1 << std::endl;
+    // std::cout << "HEREEEEEEEEEEEEEEEEE newArg2 = " << newArg2 << std::endl;
+    
+
+    AddressOpcodeArgsLine newLine = make_tuple(
+        oldAddress,
+        oldOpCODE,
+        newArg1,
+        newArg2
+    );
+
+
+    // std::cout << "HEREEEEEEEEEEEEEEEEE newArgsList[3] = " << newArgsList[3] << std::endl;
+    this->fileLineTable[addressKey] = newLine;
+    // this->printsFileLine(addressKey);
+    
+}
+
+void Assembler::updatesAllUsedPositions(uint16_t addressValueDef, ListOfUsedLabel usedLabels) {
+    for(int i = 0; i < usedLabels.size(); i++)
+    {
+        DesiredAddressToKeyAddress desiredToKey = usedLabels[i];
+        
+        // std::cout << "\n\n\n\n\n\n\n\n\n\n desired= " << std::get<DESIRED_ADDRESS>(desiredToKey) << std::endl;
+        // std::cout << " desiredKEY = " << std::get<ADDRESS_KEY>(desiredToKey) << std::endl;
+        this->updatesAssembledCodeAtAddress(addressValueDef, desiredToKey);
+    }
+}
+     
 
 void Assembler::operatesLabelsForLine(
     std::string labelDef,
@@ -207,13 +290,13 @@ void Assembler::updateCurrentLineAddress() {
 void Assembler::processLineRead() {
     // TODO: processLineRead
     this->operatesLabelsForLine(this->labelDef, this->arg1, this->arg2);
-    this->populatesFileLine();
+    
     // this->operatesInstruction();
 
 }
 
 void Assembler::populatesFileLine() {
-    std::string opCode = arg1;
+    std::string opCode = this->arg1;
     if(this->instruction != "CONST") {
         opCode = this->instructionToOpcode[this->instruction];
     }
@@ -256,12 +339,6 @@ void Assembler::setsSizeLine() {
         this->sizeOfLine = this->instructToSizeInMemory[this->instruction];
     }
 }
-// template <typename T>
-// bool myfunction (const T &i, const T &j) { 
-//     int iVal = i.first;
-//     int jVal = j.first;
-//     return (iVal<jVal); 
-// }
 
 void Assembler::onePassAlgorithm(){
   
@@ -270,9 +347,11 @@ void Assembler::onePassAlgorithm(){
     while(std::getline(*(this->sourceCode), this->currentLineReading)) {
         try{
             this->resetLineOperands();
+            
             this->currentLineReading = removeMultipleSpaces(this->currentLineReading);
             this->getCommentsAtLine();
             this->getLabelDefAtLine();
+            
             this->getInstructionAtLine();
 
             this->setsSizeLine();
@@ -282,6 +361,8 @@ void Assembler::onePassAlgorithm(){
 
             this->processLineRead();
             this->updateCurrentLineAddress();
+
+
             this->currentLine +=1;
         } catch( std::string errmsg ) {
             std::cout << errmsg << '\n';
@@ -340,6 +421,7 @@ void Assembler::setsSizeVectorSpace(std::string strToBeSearched) {
 
 void Assembler::getInstructionAtLine() {
     if (this->currentLineReading.empty()) return;
+    
     bool instructionFound = false;
     bool isSPACE = false;
     bool isCONST = false;
@@ -355,19 +437,20 @@ void Assembler::getInstructionAtLine() {
     isCOPY = this->fromSplit.at(0) == "COPY";
     isSTOP = this->fromSplit.at(0) == "STOP";
     
-    // std::cout << "INSTRUCTION:\t currentLineReading    \t" << this->currentLineReading <<std::endl;
-    
     if(instructionFound) {
         this->instruction = this->fromSplit.at(0);
+        
         if(isSECTION) {
+            
             this->typeOfSection = this->fromSplit.at(1);
-            this->currentLineReading = this->fromSplit.at(1);
-            // std::cout << "typeOfSection    \t" << this->typeOfSection <<std::endl;
-        } else if(isCOPY) {
-            this->currentLineReading = (this->fromSplit.at(1)).append(this->fromSplit.at(2));
+            // this->currentLineReading = this->fromSplit.at(1);
         } 
-        // std::cout << "instruction    \t" << this->instruction <<std::endl;
+        // else if(isCOPY) {
+        //     std::cout << "this->fromSplit " << getListAsString(this->fromSplit) <<std::endl;
+        //     this->currentLineReading = (this->fromSplit.at(1));
+        // } 
         this->currentLineReading = this->fromSplit.at(1);
+        
     } else if (isSTOP) {
             this->instruction = "STOP";
             // std::cout << "INSTRUCTION:\t instruction    \t" << this->instruction <<std::endl;
@@ -380,6 +463,9 @@ void Assembler::getInstructionAtLine() {
     } else {
         this->currentLineReading = this->fromSplit.at(0);
     }
+
+    
+            // std::cout << "222222222222222222    " <<std::endl;
 
     this->validateInstruction(this->instruction);
     // std::cout << "currentLineReading    \t" << this->currentLineReading <<std::endl;
@@ -414,11 +500,13 @@ void Assembler::getArgsAtLine() {
             this->currentLineReading = this->fromSplit.at(0);
         }
 
-        // else if(isCONST){
-        //     this->instruction = this->fromSplit.at(0);
-        //     this->currentAddress = std::to_string(stoi(this->currentAddress) + 1);
-        //     this->arg1 = "";
-        //     this->arg2 = "";
+        // else 
+        if(isCONST){
+            // this->instruction = this->arg1;
+            // this->currentAddress = this->currentAddress + 1;
+            this->arg1 = "";
+            this->arg2 = "";
+        }
         //     this->currentLineReading = this->fromSplit.at(0);
         // std::cout << "ARGS:\t Args\t" << this->arg1 << " " <<  this->arg2 <<std::endl;
         
@@ -426,77 +514,44 @@ void Assembler::getArgsAtLine() {
     }   
 }
 
-void Assembler::updatesAssembledCodeAtAddress(
-    uint16_t addressValueDef, 
-    DesiredAddressToKeyAddress position
-) {
-    uint16_t addressKey = std::get<ADDRESS_KEY>(position);
-    if(addressKey < 0) return;
-    int addressDesired =  std::get<DESIRED_ADDRESS>(position);    
-    int positionAtFileLineTuple =  addressDesired - addressKey;
-
-
-    
-
-    AddressOpcodeArgsLine oldLine = this->fileLineTable[addressKey];
-    uint16_t oldAddress  = std::get<ADDRESS_FILELINE>(oldLine);
-    std::string oldOpCODE = std::get<OPCODE_FILELINE>(oldLine);
-    std::string newArg1 = std::get<ARG1_FILELINE>(oldLine); 
-    std::string newArg2 = std::get<ARG2_FILELINE>(oldLine); 
-
-    if(positionAtFileLineTuple == 1) {
-        newArg1 = std::to_string(addressValueDef);
-    } else if(positionAtFileLineTuple == 2) {
-        newArg2 = std::to_string(addressValueDef);
-    }        
-    
-    std::cout << "\n\n\nHEREEEEEEEEEEEEEEEEE addressDesired = " << addressDesired << std::endl;
-    std::cout << "HEREEEEEEEEEEEEEEEEE addressKey = " << addressKey << std::endl;
-    std::cout << "HEREEEEEEEEEEEEEEEEE addressValueDef = " << addressValueDef << std::endl;
-    std::cout << "HEREEEEEEEEEEEEEEEEE positionAtFileLineTuple = " << positionAtFileLineTuple << std::endl;
-    std::cout << "HEREEEEEEEEEEEEEEEEE oldAddress = " << oldAddress << std::endl;
-    std::cout << "HEREEEEEEEEEEEEEEEEE oldOpCODE = " << oldOpCODE << std::endl;
-    std::cout << "HEREEEEEEEEEEEEEEEEE newArg1 = " << newArg1 << std::endl;
-    std::cout << "HEREEEEEEEEEEEEEEEEE newArg2 = " << newArg2 << std::endl;
-    
-
-    AddressOpcodeArgsLine newLine = make_tuple(
-        oldAddress,
-        oldOpCODE,
-        newArg1,
-        newArg2
-    );
-
-
-    // std::cout << "HEREEEEEEEEEEEEEEEEE newArgsList[3] = " << newArgsList[3] << std::endl;
-    this->fileLineTable[addressKey] = newLine;
-    // this->printsFileLine(addressKey);
-    
-}
-
-void Assembler::updatesAllUsedPositions(uint16_t addressValueDef, ListOfUsedLabel usedLabels) {
-    for(int i = 0; i < usedLabels.size(); i++)
-    {
-        DesiredAddressToKeyAddress desiredToKey = usedLabels[i];
-        this->updatesAssembledCodeAtAddress(addressValueDef, desiredToKey);
-    }
-}
-      
-
 void Assembler::writeAssembledFile() {
     std::string finalFileName = this->fileName.substr(0,this->fileName.find_last_of('.'))+".obj";
     std::fstream output;
     output.open(finalFileName,std::ios::out );
 
-    //TODO writeAssembledFile
+    std::cout << "\n OUTPUTING FILE \n\n\n" << std::endl;
+        
 
+    FileLines::iterator it = this->fileLineTable.begin();
+    while (it != this->fileLineTable.end())
+    {
+        uint16_t key = it->first;
+
+        AddressOpcodeArgsLine lineToWrite = it->second;
+        uint16_t address  = std::get<ADDRESS_FILELINE>(lineToWrite);
+        std::string opCODE = std::get<OPCODE_FILELINE>(lineToWrite);
+        std::string arg1 = std::get<ARG1_FILELINE>(lineToWrite); 
+        std::string arg2 = std::get<ARG2_FILELINE>(lineToWrite); 
+
+        
+        this->printsFileLine(key);
+        std::string outputString = opCODE + " ";
+        if(!arg1.empty() && opCODE != "CONST") outputString += arg1 + " ";
+        if(!arg2.empty()) outputString += arg2 + " ";
+        
+        std::cout << "\n OUTPUTING outputString " << outputString << std::endl;
+        output << outputString;
+
+        it++;
+    }
     output.close();
     std::cout << "[check] .obj file written"<<std::endl;
 }
 
+
 void Assembler::assembleFile(){
     this->onePassAlgorithm();
-    // this->writeAssembledFile();
+    this->writeAssembledFile();
 }
 
 
