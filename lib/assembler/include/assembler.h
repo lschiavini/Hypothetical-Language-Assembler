@@ -78,12 +78,11 @@ class Assembler {
             {"CONST", 1},
         };  
 
-
         SymbolTable symbolTable;
         FileLines fileLineTable;
 
         std::fstream * sourceCode;
-        std::fstream * assembledCode;
+        bool shouldWriteFile = false;
 
 
         uint16_t currentLine = 1;
@@ -136,7 +135,7 @@ class Assembler {
         bool isValidInstruction(std::string token);
         void validateLabel(std::string token);
         void validateInstruction(std::string token);
-        void semanticValidator(); // TODO semanticValidator
+        void sintaticValidator(u_int16_t numOfArgs); // TODO semanticValidator
         void hasMoreThanOneSameSection(); // TODO hasMoreThanOneSameSection
         // END VERIFIERS
 

@@ -80,6 +80,23 @@ void Assembler::validateLabel(std::string token) {
     throw error;
 }
 
+void Assembler::sintaticValidator(uint16_t numOfArgs) {
+    uint16_t correctNumArgs = this->instructToSizeInMemory[this->instruction] - 1;
+    if(this->instruction == "CONST" || this->instruction == "STOP") correctNumArgs = 1;
+    else if(this->instruction == "SPACE") correctNumArgs = this->sizeOfLine;
+    else if(this->instruction == "SECTION") this->hasMoreThanOneSameSection();
+    else if(numOfArgs != correctNumArgs) {
+        std::string error = " Sintatic Error at line " + std::to_string(this->currentLine) + " Expected " + std::to_string(correctNumArgs) + " number of arguments, but instead got "  + std::to_string(numOfArgs);
+        throw error;
+    }
+} 
+
+void Assembler::hasMoreThanOneSameSection() {
+
+  // TODO hasMoreThanOneSameSection  
+
+} 
+
 void Assembler::operatesLabel(
     std::string label,
     uint16_t addressLabelDef,
@@ -342,7 +359,7 @@ void Assembler::setsSizeLine() {
 void Assembler::onePassAlgorithm(){
   
     // this->symbolTable.printTable();  
-    
+    this->shouldWriteFile = true;
     while(std::getline(*(this->sourceCode), this->currentLineReading)) {
         try{
             this->resetLineOperands();
@@ -352,8 +369,6 @@ void Assembler::onePassAlgorithm(){
             this->getLabelDefAtLine();
             
             this->getInstructionAtLine();
-            
-std::cout << "\n this->instruction "<< this->instruction << std::endl;
 
             this->setsSizeLine();
             this->getArgsAtLine();
@@ -366,6 +381,7 @@ std::cout << "\n this->instruction "<< this->instruction << std::endl;
 
             this->currentLine +=1;
         } catch( std::string errmsg ) {
+            this->shouldWriteFile = false;
             std::cout << errmsg << '\n';
         }        
         // std::cout << "fromSplit    \t" << getListAsString(fromSplit) << "\tSIZE LIST: " << fromSplit.size() <<std::endl;
@@ -444,7 +460,6 @@ void Assembler::getInstructionAtLine() {
         this->instruction = this->fromSplit.at(0);
         
         if(isSECTION) {
-            
             this->typeOfSection = this->fromSplit.at(1);
             // this->currentLineReading = this->fromSplit.at(1);
         } 
@@ -484,17 +499,12 @@ void Assembler::getArgsAtLine() {
     bool isCONST = this->instruction == "CONST";
     bool isSPACE = this->instruction == "SPACE";
     bool isSTOP = this->instruction == "STOP";
-//  std::cout << "ARGS:\t numberOfArgs    \t" << this->numberOfArgs <<std::endl;
     bool shouldReadArgs = !isSPACE && !isSTOP &&
     (isCONST || (this->numberOfArgs != 0 && this->numberOfArgs < 3));
+    this->fromSplit = split(this->currentLineReading, ',');
 
-    // std::cout << "ARGS:\t this->currentLineReading    \t" << this->currentLineReading <<std::endl;
- 
+    this->sintaticValidator(this->fromSplit.size());
     if(shouldReadArgs) {
-        
-        this->fromSplit = split(this->currentLineReading, ',');
-        // std::cout << "ARGS:\t fromSplit    \t" << getListAsString(this->fromSplit) << "\tSIZE LIST: " << fromSplit.size() <<std::endl;
-
         if (this->numberOfArgs == 2) {
             this->arg1 = this->fromSplit.at(0);
             this->arg2 = this->fromSplit.at(1);
@@ -504,19 +514,8 @@ void Assembler::getArgsAtLine() {
             this->arg2 = "";
             this->currentLineReading = this->fromSplit.at(0);
         }
-
-        // else 
-        // if(isCONST){
-        //     // this->instruction = this->arg1;
-        //     // this->currentAddress = this->currentAddress + 1;
-        //     this->arg1 = "";
-        //     this->arg2 = "";
-        // }
-        //     this->currentLineReading = this->fromSplit.at(0);
-        // std::cout << "ARGS:\t Args\t" << this->arg1 << " " <<  this->arg2 <<std::endl;
-        
-        // std::cout << "ARGS:\t fromSplit    \t" << getListAsString(this->fromSplit) << "\tSIZE LIST: " << fromSplit.size() <<std::endl;
     }
+    
 }
 
 void Assembler::writeAssembledFile() {
@@ -539,12 +538,10 @@ void Assembler::writeAssembledFile() {
 
         bool isCONST = arg1 == opCODE;
         
-        // this->printsFileLine(key);
         std::string outputString = opCODE + " ";
         if(!arg1.empty() && !isCONST) outputString += arg1 + " ";
         if(!arg2.empty()) outputString += arg2 + " ";
         
-        // std::cout << "\n OUTPUTING outputString " << outputString << std::endl;
         output << outputString;
 
         it++;
@@ -556,7 +553,8 @@ void Assembler::writeAssembledFile() {
 
 void Assembler::assembleFile(){
     this->onePassAlgorithm();
-    this->writeAssembledFile();
+    if(this->shouldWriteFile) this->writeAssembledFile();
+    else std::cout << "Assembling ended with errors."<<std::endl;
 }
 
 
