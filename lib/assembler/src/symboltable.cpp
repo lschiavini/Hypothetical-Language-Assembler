@@ -12,50 +12,50 @@ SymbolTable::SymbolTable(){
 void SymbolTable::MOCKSymbolTable() {
     ListOfUsedLabel list;
     //Adds first row
-    list.insert(list.begin(), {"7", "9"});
-    this->adds("OLD_DATA", "2", true, list);
+    list.insert(list.begin(), {7, 9});
+    this->adds("OLD_DATA", 2, true, list);
 
     // erases list
     list.erase(list.begin());
     list.erase(list.begin());
 
     // adds second row
-    list.insert(list.begin(), {"11", "15"});
-    this->adds("DOIS", "0", true, list);
+    list.insert(list.begin(), {11, 15});
+    this->adds("DOIS", 0, true, list);
 
     // erases list
     list.erase(list.begin());
     list.erase(list.begin());
 
     //Adds another element of usedList on first row
-    list.insert(list.begin(), {"19", "12"});
-    this->adds("OLD_DATA", "2", true, list);
+    list.insert(list.begin(), {19, 12});
+    this->adds("OLD_DATA", 2, true, list);
 
 }
 
-ListOfStrings SymbolTable::fromListOfLabelToStrings(ListOfUsedLabel listOfUseLABEL) {
-    ListOfStrings listOfUseSTRING(listOfUseLABEL.size());
+ListOfUInts SymbolTable::fromListOfLabelToUints(ListOfUsedLabel listOfUseLABEL) {
+    ListOfUInts listOfUseUINTs(listOfUseLABEL.size());
     for(uint16_t i = 0; i < listOfUseLABEL.size();  i++){
         DesiredAddressToKeyAddress currentAddresses = listOfUseLABEL[i];
-        listOfUseSTRING[i] = std::get<DESIRED_ADDRESS>(currentAddresses);
+        listOfUseUINTs[i] = std::get<DESIRED_ADDRESS>(currentAddresses);
     }
-    return listOfUseSTRING;
+    return listOfUseUINTs;
 }
 
 void SymbolTable::printRow(std::string label, Row row) {
 
-    std::string value = std::get<ADDRESSPOS>(row);
+    uint16_t value = std::get<ADDRESSPOS>(row);
     bool isDefined = std::get<ISDEFINEDPOS>(row);
     ListOfUsedLabel listOfUseLABEL = std::get<LISTOFUSEPOS>(row);
-    ListOfStrings listOfUseSTRING = this->fromListOfLabelToStrings(listOfUseLABEL);
-    std::string fullListOfUse = getListAsString(listOfUseSTRING);
+    ListOfUInts listOfUseSTRING = this->fromListOfLabelToUints(listOfUseLABEL);
+    std::string fullListOfUse = getListAsStringUint(listOfUseSTRING);
 
-    if(!removeAllSpaces(value).empty()) {
+    // if(!removeAllSpaces(std::to_string(value)).empty()) {
         std::cout << label << "\t\t| Address = " << 
         value << "\t| isDefined = "<< isDefined
         << "\t| listOfUse = "<< fullListOfUse <<  
         std::endl;
-    }
+    // }
 }
 
 void SymbolTable::printTable() {
@@ -101,13 +101,13 @@ ListOfUsedLabel SymbolTable::appendToUsedList(ListOfUsedLabel usedList, ListOfUs
 
 void SymbolTable::updatesListOfUse(
     std::string label,
-     std::string definitionAddress,
+     uint16_t definitionAddress,
      bool isDefinition,
      ListOfUsedLabel listOfUseItems 
 ) {
     Row rowToBeInserted;
     Row previousRow = this->table[label];
-    std::string addressToUse = std::get<ADDRESSPOS>(this->table[label]);
+    uint16_t addressToUse = std::get<ADDRESSPOS>(this->table[label]);
     if(isDefinition) addressToUse = definitionAddress;
 
     ListOfUsedLabel oldListOfUse = std::get<LISTOFUSEPOS>(previousRow);
@@ -121,7 +121,7 @@ void SymbolTable::updatesListOfUse(
 
 void SymbolTable::adds(
     std::string label,
-    std::string address, 
+    uint16_t address, 
     bool isDefinition, 
     ListOfUsedLabel listOfUseItems,
     bool isCONSTVal
@@ -152,9 +152,9 @@ bool SymbolTable::isDefined(std::string label){
     return isDefinedValue;
 }
 
-std::string SymbolTable::getsAddressValue(std::string label){
+uint16_t SymbolTable::getsAddressValue(std::string label){
     Row currentRow = this->table[label];
-    std::string addressValue = std::get<ADDRESSPOS>(currentRow);
+    uint16_t addressValue = std::get<ADDRESSPOS>(currentRow);
     return addressValue;
 }
 

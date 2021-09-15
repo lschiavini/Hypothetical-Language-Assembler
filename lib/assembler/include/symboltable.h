@@ -10,6 +10,7 @@
 #include <string>
   
 typedef std::vector< std::string> ListOfStrings;
+typedef std::vector< uint16_t> ListOfUInts;
 
 #define ADDRESSPOS 0
 #define ISDEFINEDPOS 1
@@ -20,10 +21,10 @@ typedef std::vector< std::string> ListOfStrings;
 
 
 
-typedef std::tuple<std::string, std::string> DesiredAddressToKeyAddress;
+typedef std::tuple<uint16_t, uint16_t> DesiredAddressToKeyAddress;
 typedef std::vector<DesiredAddressToKeyAddress> ListOfUsedLabel;
 // <address, isDefined, listOfUse>
-typedef std::tuple< std::string, bool, ListOfUsedLabel > Row;
+typedef std::tuple< uint16_t, bool, ListOfUsedLabel > Row;
 
 // <label, row>
 typedef std::map<std::string, Row> Table;
@@ -35,7 +36,7 @@ class SymbolTable {
       ListOfUsedLabel appendToUsedList(ListOfUsedLabel usedList, ListOfUsedLabel newUsedItems);
       void updatesListOfUse(
           std::string label,
-          std::string value,
+          uint16_t definitionAddress,
           bool isDefinition,
           ListOfUsedLabel listOfUseItems 
       );
@@ -43,20 +44,20 @@ class SymbolTable {
         Table table;
         ~SymbolTable();
         SymbolTable();
-        ListOfStrings fromListOfLabelToStrings(ListOfUsedLabel listOfUseLABEL);        
+        ListOfUInts fromListOfLabelToUints(ListOfUsedLabel listOfUseLABEL);        
         void printTable();
         void printRow(std::string label, Row row);
         bool contains(std::string label);
         Table::iterator getTablePosition(std::string label);
         void adds(
             std::string label,
-            std::string address, 
+            uint16_t address, 
             bool isDefinition, 
             ListOfUsedLabel newListOfUse,
             bool isCONSTVal = false
           );
         bool isDefined(std::string label);
-        std::string getsAddressValue(std::string label);
+        uint16_t getsAddressValue(std::string label);
         ListOfUsedLabel getsUsedPositions(std::string label);
 };
 

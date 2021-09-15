@@ -20,27 +20,21 @@ typedef std::vector< std::string> ListOfStrings;
 typedef std::map<std::string, uint16_t> DirectiveToNumber;
 typedef std::map<std::string, std::string> DirectiveToOpCode;
 
-typedef std::tuple<std::string, std::string> DesiredAddressToKeyAddress;
+typedef std::tuple<uint16_t, uint16_t> DesiredAddressToKeyAddress;
 typedef std::vector<DesiredAddressToKeyAddress> ListOfUsedLabel;
 
 
 typedef std::tuple<
-    std::string, 
+    uint16_t, 
     std::string,
     std::string,
     std::string
 > AddressOpcodeArgsLine;
-// addressKey = getsAddressForLabel()
-// listOfPositions = getUsedPositionsFromLabel()
-
-// positionVector = addressDesired - address
-// AddressOpcodeArgsLine oldLine = myFile[addressKey]
-// FileLines myFile[addressKey]
 
 
-// map<[addressKey] [address, opcode, arg1, arg2, lineFile]>
+// map<[addressKey] [address, opcode, arg1, arg2]>
 // address opcode/value arg1 arg2 lineOriginalFile 
-typedef std::map<std::string, AddressOpcodeArgsLine > FileLines;
+typedef std::map<uint16_t, AddressOpcodeArgsLine > FileLines;
 
 class Assembler {
     public:
@@ -93,7 +87,7 @@ class Assembler {
 
 
         uint16_t currentLine = 1;
-        std::string currentAddress = "0";
+        uint16_t currentAddress = 0;
         std::string currentToken = "";        
 
         std::string fileName = "binComments.asm";
@@ -101,7 +95,7 @@ class Assembler {
         // TESTING
         void printsMaps();
         void printsCurrentLine();
-        void printsFileLine(std::string address);
+        void printsFileLine(uint16_t address);
         
         // END OF TESTING
 
@@ -114,12 +108,14 @@ class Assembler {
                 vectorSpace,
                 arg1,
                 arg2;
+            
         uint16_t numberOfArgs, sizeOfLine;
         ListOfStrings fromSplit;
 
         void onePassAlgorithm();
         void writeAssembledFile();
 
+        void fileLinesInNumericOrder();
 
         void resetLineOperands();
         void getLabelDefAtLine();
@@ -154,9 +150,9 @@ class Assembler {
 
         void operatesLabel(
             std::string label,
-            std::string addressLabelDef,
+            uint16_t  addressLabelDef,
             bool isDefinition,
-            std::string labelAddress
+            uint16_t labelAddress
         );
         void operatesInstruction(std::string instruction);
         void operatesConstant(std::string constant);
@@ -171,10 +167,8 @@ class Assembler {
             bool isCONST
         );
 
-        void updatesAllUsedPositions(std::string label, ListOfUsedLabel usedLabels);
-        void updatesAssembledCodeAtAddress(std::string addressValue , DesiredAddressToKeyAddress position);
-        void addsToUsedPosition(std::string value, DesiredAddressToKeyAddress position);
-
+        void updatesAllUsedPositions(uint16_t addressValueDef, ListOfUsedLabel usedLabels);
+        void updatesAssembledCodeAtAddress(uint16_t addressValueDef , DesiredAddressToKeyAddress position);
 };
 
 #endif

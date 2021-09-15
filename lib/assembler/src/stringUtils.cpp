@@ -1,5 +1,6 @@
 #include <string>
 #include <sstream>
+#include <iostream>
 #include <vector>
 #include <iterator>
 #include <regex>
@@ -30,6 +31,19 @@ std::string getListAsString(ListOfStrings vectorList) {
         } else{
             listAsString.append(" -> ");
             listAsString.append(("%d" , vectorList.at(i)));
+        }
+    }
+    return listAsString; 
+}
+
+std::string getListAsStringUint(ListOfUInts vectorList) {
+    std::string listAsString;
+    for (uint16_t i=0; i < vectorList.size(); i++) {
+        if(i==0) {
+            listAsString.append(std::to_string(vectorList.at(i)));
+        } else{
+            listAsString.append(" -> ");
+            listAsString.append(std::to_string(vectorList.at(i)));
         }
     }
     return listAsString; 

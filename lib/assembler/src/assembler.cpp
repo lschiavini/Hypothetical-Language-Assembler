@@ -45,7 +45,6 @@ void Assembler::printsMaps() {
 
 }
 
-
 bool Assembler::isValidInstruction(std::string token) {
     int instructionSize = this->instructToSizeInMemory[token];
     bool isInstruction = instructionSize < 4 && instructionSize > 0;
@@ -83,16 +82,17 @@ void Assembler::validateLabel(std::string token) {
 
 void Assembler::operatesLabel(
     std::string label,
-    std::string addressLabelDef,
+    uint16_t addressLabelDef,
     bool isDefinition,
-    std::string labelAddress
+    uint16_t labelAddress
 ) {
     std::string error = "";
     bool isCONSTValue = this->instruction == "CONST" && (addressLabelDef != labelAddress);
     this->validateLabel(label);
     bool isDefined = this->symbolTable.isDefined(label);
-    std::string addressKey = this->symbolTable.getsAddressValue(label);
-    DesiredAddressToKeyAddress desiredToKey = make_tuple(labelAddress, addressKey);
+    
+    DesiredAddressToKeyAddress desiredToKey = std::make_tuple(labelAddress, this->currentAddress);
+    
     if(isDefinition && isDefined) {
         error = "Semantic Error at line " + std::to_string(this->currentLine) + ". Label " + label +" already exists";
         throw error;
@@ -105,11 +105,12 @@ void Assembler::operatesLabel(
         isCONSTValue
     );
     if(isDefined) {        
+
         this->updatesAssembledCodeAtAddress(addressLabelDef, desiredToKey);
     } else if(isDefinition) {
-        std::string addressKey = this->symbolTable.getsAddressValue(label);
+        uint16_t addressDefKey = this->symbolTable.getsAddressValue(label);
         ListOfUsedLabel allUsedPositions = this->symbolTable.getsUsedPositions(label);
-        this->updatesAllUsedPositions(addressKey, allUsedPositions);
+        this->updatesAllUsedPositions(addressDefKey, allUsedPositions);
     }
         
 }  
@@ -119,9 +120,9 @@ void Assembler::operatesLabelsForLine(
     std::string arg1,
     std::string arg2
 ) {
-    std::vector <std::tuple <std::string, std::string , bool, std::string>> labelsTuple;
-    bool isDefinition = labelDef != "";
-    int totalAddress = stoi(this->currentAddress);
+    std::vector <std::tuple <std::string, uint16_t , bool, uint16_t>> labelsTuple;
+    bool isDefinition = !labelDef.empty();
+    int totalAddress = this->currentAddress;
 
     if(labelDef != "") labelsTuple.insert(
                 labelsTuple.begin(),
@@ -129,7 +130,7 @@ void Assembler::operatesLabelsForLine(
                     labelDef,
                     this->currentAddress,
                     isDefinition,
-                    std::to_string(totalAddress)
+                    totalAddress
                 )
             );
     if(arg1 != "") labelsTuple.insert(
@@ -138,7 +139,7 @@ void Assembler::operatesLabelsForLine(
                     arg1,
                     this->currentAddress,
                     false,
-                    std::to_string(totalAddress+1)
+                    totalAddress+1
                 )
             );
     if(arg2 != "") labelsTuple.insert(
@@ -147,14 +148,14 @@ void Assembler::operatesLabelsForLine(
                     arg2,
                     this->currentAddress,
                     false, 
-                    std::to_string(totalAddress+2)
+                    totalAddress+2
                 )
             );
     
     if(labelsTuple.size() > 0) {
         for (size_t i = 0; i < labelsTuple.size(); i++) {
             try{
-                std::tuple <std::string, std::string, bool, std::string> currentTuple = labelsTuple[i];
+                std::tuple<std::string, uint16_t, bool, uint16_t> currentTuple = labelsTuple[i];
                 
                 // std::cout <<"PROCESSED LABEL: " << std::get<0>(currentTuple) <<"\t" 
                 // << std::get<1>(currentTuple)  <<"\t" << std::get<2>(currentTuple)
@@ -189,7 +190,7 @@ void Assembler::updateCurrentLineAddress() {
     // std::cout << "this->currentAddress    \t" << this->currentAddress <<std::endl;
     if(this->sizeOfLine <=3 && this->sizeOfLine > 0) {
         int vectorSpace = stoi(this->vectorSpace);
-        int addressToSum = stoi(this->currentAddress);
+        int addressToSum = this->currentAddress;
         // std::cout << "vectorSpace    \t" << vectorSpace <<std::endl;
     
         if(vectorSpace > 0 ){
@@ -199,7 +200,7 @@ void Assembler::updateCurrentLineAddress() {
         }
         
         // std::cout << "addressToSum    \t" << addressToSum <<std::endl;
-        this->currentAddress = std::to_string(addressToSum);
+        this->currentAddress = addressToSum;
     }
 }
 
@@ -227,9 +228,9 @@ void Assembler::populatesFileLine() {
     // this->printsFileLine(this->currentAddress);
 }
 
-void Assembler::printsFileLine(std::string address) {
-    std::string addressKey = address;
-    if (address.empty()) addressKey = this->currentAddress;
+void Assembler::printsFileLine(uint16_t address) {
+    uint16_t addressKey = address;
+    if (address == 0) addressKey = this->currentAddress;
     AddressOpcodeArgsLine fileLineToPrint = this->fileLineTable[addressKey];
 
     std::cout << "\tAddress:" << std::get<ADDRESS_FILELINE>(fileLineToPrint)
@@ -256,10 +257,16 @@ void Assembler::setsSizeLine() {
         this->sizeOfLine = this->instructToSizeInMemory[this->instruction];
     }
 }
+// template <typename T>
+// bool myfunction (const T &i, const T &j) { 
+//     int iVal = i.first;
+//     int jVal = j.first;
+//     return (iVal<jVal); 
+// }
 
 void Assembler::onePassAlgorithm(){
   
-    this->symbolTable.printTable();  
+    // this->symbolTable.printTable();  
     
     while(std::getline(*(this->sourceCode), this->currentLineReading)) {
         try{
@@ -283,9 +290,18 @@ void Assembler::onePassAlgorithm(){
         // std::cout << "fromSplit    \t" << getListAsString(fromSplit) << "\tSIZE LIST: " << fromSplit.size() <<std::endl;
     }
 
-    
-    this->symbolTable.printTable();              
+
+    this->symbolTable.printTable();     
+
+    // std::sort(this->fileLineTable.begin(), this->fileLineTable.end(), myfunction);
+
+    for (FileLines::iterator it = this->fileLineTable.begin(); it != this->fileLineTable.end(); it++ )
+    {
+        this->printsFileLine(it->first);
+    }
+             
 }
+
 
 void Assembler::getLabelDefAtLine() {
     if (this->currentLineReading.empty()) return;
@@ -411,45 +427,52 @@ void Assembler::getArgsAtLine() {
     }   
 }
 
-
 void Assembler::updatesAssembledCodeAtAddress(
-    std::string addressValue, 
+    uint16_t addressValueDef, 
     DesiredAddressToKeyAddress position
 ) {
-    // std::string addressKey = std::get<ADDRESS_KEY>(position);
-    // int addressDesired =  stoi(std::get<DESIRED_ADDRESS>(position));
-    // int positionAtFileLineTuple = addressDesired - stoi(addressKey);
-    // AddressOpcodeArgsLine oldLine = this->fileLineTable[addressKey];
-    // ListOfStrings oldLineStrings = {
-    //     std::get<ADDRESS_FILELINE>(oldLine),
-    //     std::get<OPCODE_FILELINE>(oldLine),
-    //     std::get<ARG1_FILELINE>(oldLine),
-    //     std::get<ARG2_FILELINE>(oldLine)        
-    // };
+    uint16_t addressKey = std::get<ADDRESS_KEY>(position);
+    if(addressKey == 0) return;
+    int addressDesired =  std::get<DESIRED_ADDRESS>(position);    
+    int positionAtFileLineTuple =  addressDesired - addressKey;
 
-    // std::string newArgs = "";
-    // for (int i = 0; i < 4; i++) {
-    //     std::string currentVal = oldLineStrings[i];
-    //     newArgs += currentVal + "|";
-    //     if(i == positionAtFileLineTuple) {
-    //         newArgs = addressValue + "|";
-    //     }
-    // }
-    // ListOfStrings newArgsList = split(newArgs, '|');
-    // AddressOpcodeArgsLine newLine = make_tuple(
-    //     newArgsList[0],
-    //     newArgsList[1],
-    //     newArgsList[2],
-    //     newArgsList[3]
-    // );
-    // this->fileLineTable[addressKey] = newLine;
+
+    // std::cout << "HEREEEEEEEEEEEEEEEEE addressDesired = " << addressDesired << std::endl;
+    // std::cout << "HEREEEEEEEEEEEEEEEEE addressKey = " << addressKey << std::endl;
+    // std::cout << "HEREEEEEEEEEEEEEEEEE positionAtFileLineTuple = " << positionAtFileLineTuple << std::endl;
+    
+
+    AddressOpcodeArgsLine oldLine = this->fileLineTable[addressKey];
+    uint16_t oldAddress  = std::get<ADDRESS_FILELINE>(oldLine);
+    std::string oldOpCODE = std::get<OPCODE_FILELINE>(oldLine);
+    std::string newArg1 = std::get<ARG1_FILELINE>(oldLine); 
+    std::string newArg2 = std::get<ARG2_FILELINE>(oldLine); 
+
+    if(positionAtFileLineTuple == 1) {
+        newArg1 = addressValueDef;
+    } else if(positionAtFileLineTuple == 2) {
+        newArg2 = addressValueDef;
+    }        
+    
+    AddressOpcodeArgsLine newLine = make_tuple(
+            oldAddress,
+            oldOpCODE,
+            newArg1,
+            newArg2
+        );
+
+
+    // std::cout << "HEREEEEEEEEEEEEEEEEE newArgsList[3] = " << newArgsList[3] << std::endl;
+    this->fileLineTable[addressKey] = newLine;
+    // this->printsFileLine(addressKey);
+    
 }
 
-void Assembler::updatesAllUsedPositions(std::string addressValue, ListOfUsedLabel usedLabels) {
+void Assembler::updatesAllUsedPositions(uint16_t addressValueDef, ListOfUsedLabel usedLabels) {
     for(int i = 0; i < usedLabels.size(); i++)
     {
         DesiredAddressToKeyAddress desiredToKey = usedLabels[i];
-        this->updatesAssembledCodeAtAddress(addressValue, desiredToKey);
+        this->updatesAssembledCodeAtAddress(addressValueDef, desiredToKey);
     }
 }
       
