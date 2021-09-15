@@ -68,7 +68,6 @@ void SymbolTable::printTable() {
 }
 
 Table::iterator SymbolTable::getTablePosition(std::string label) {
-    Table::iterator mapEnd = this->table.end();
     Table::iterator position;      
     position = this->table.find(label);
     return position;

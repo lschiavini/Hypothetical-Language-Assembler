@@ -113,9 +113,10 @@ class Assembler {
 
             // VERIFIERS
             bool isDataDirective(std::string token);
-            bool isValidLabel(std::string token);
-            bool isDefinition(std::string token);
             bool isValidInstruction(std::string token);
+            void validateLabel(std::string token);
+            void validateInstruction(std::string token);
+            void semanticValidator();
             // END VERIFIERS
 
         

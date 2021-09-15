@@ -45,9 +45,39 @@ void Assembler::printsMaps() {
 }
 
 
-bool Assembler::isValidLabel(std::string token) {
-    return true;
-    // TODO isValidLabel
+bool Assembler::isValidInstruction(std::string token) {
+    int instructionSize = this->instructToSizeInMemory[token];
+    bool isInstruction = instructionSize < 4 && instructionSize > 0;
+    bool isSECTION = token == "SECTION";
+    return isInstruction || isSECTION;
+}
+
+void Assembler::validateInstruction(std::string token) {
+    std::string error = "";
+    if(token != "") {
+        if(!isValidInstruction(token)) {   
+            error = "Lexical error at line " + std::to_string(this->currentLine) + ". " + token +" is invalid Instruction.";
+            throw error;
+        }
+    }
+}
+
+void Assembler::validateLabel(std::string token) {
+    std::string error = "";
+    std::string specificError = "";
+    int sizeToken = token.size();
+    std::regex regexExp("([a-zA-Z_][a-zA-Z0-9_]+)");
+    bool hasCorrectChars = std::regex_match(token, regexExp); 
+    bool validLabel = sizeToken <= 50 && hasCorrectChars;
+    if(this->isValidInstruction(token) || validLabel) {
+        return;
+    } else {
+        if(sizeToken > 50) specificError += "More than 50 char. ";
+        if(!hasCorrectChars) specificError += token +" has invalid Characters. " ;
+    }
+
+    error = "Lexical error at line " + std::to_string(this->currentLine) + ". " + specificError;
+    throw error;
 }
 
 void Assembler::operatesLabel(
@@ -57,7 +87,7 @@ void Assembler::operatesLabel(
     std::string labelAddress
 ) {
     std::string error = "";
-    this->isValidLabel(label);
+    this->validateLabel(label);
     bool isDefined = this->symbolTable.isDefined(label);
     if(isDefinition) {
         if(isDefined) {
@@ -222,23 +252,6 @@ void Assembler::onePassAlgorithm(){
     this->symbolTable.printTable();              
 }
 
-bool Assembler::isValidInstruction(std::string token) { 
-    DirectiveToNumber instructionMap = this->instructionToOpcode;
-    if(instructionMap.find(token) != instructionMap.end()) {
-        return true;
-    }
-    return false;
-    // TODO: throw error at line
-}
-
-bool Assembler::isDataDirective(std::string token) {
-    DirectiveToNumber instructionMap = this->instructionToOpcode;
-    if(instructionMap.find(token) != instructionMap.end()) {
-        return true;
-    }
-    return false;
-}
-
 void Assembler::getLabelDefAtLine() {
     bool foundLabel = false;
     this->fromSplit = split(this->currentLineReading, ':');
@@ -316,6 +329,8 @@ void Assembler::getInstructionAtLine() {
     } else {
         this->currentLineReading = this->fromSplit.at(0);
     }
+
+    this->validateInstruction(this->instruction);
     // std::cout << "currentLineReading    \t" << this->currentLineReading <<std::endl;
     // std::cout << "instruction    \t" << this->instruction <<std::endl;
     // std::cout << "INSTRUCTION:\t fromSplit    \t" << getListAsString(this->fromSplit) << "\tSIZE LIST: " << fromSplit.size() <<std::endl;
