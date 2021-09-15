@@ -41,6 +41,7 @@ class Assembler {
         Assembler(std::fstream *source, std::string fileName);
         ~Assembler();
         void assembleFile();
+        bool canSimulate = false;
     private:
         DirectiveToOpCode instructionToOpcode = {
             {"SPACE", "0"},

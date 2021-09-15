@@ -4,5 +4,4 @@ project(assembler)
 
 add_library( assembler STATIC 
 ./src/assembler.cpp 
-./src/symboltable.cpp 
-./src/stringUtils.cpp )
+./src/symboltable.cpp )

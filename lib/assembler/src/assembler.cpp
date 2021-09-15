@@ -547,6 +547,7 @@ void Assembler::writeAssembledFile() {
         it++;
     }
     output.close();
+    this->canSimulate = true;
     std::cout << "[check] .obj file written"<<std::endl;
 }
 
