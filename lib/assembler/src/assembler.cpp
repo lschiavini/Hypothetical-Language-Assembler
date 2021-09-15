@@ -56,21 +56,19 @@ void Assembler::operatesLabel(
     bool isDefinition,
     std::string labelAddress
 ) {
-    
+    std::string error = "";
     this->isValidLabel(label);
-    // int currentAddressInt = this->currentAddress + 
 
     bool isDefined = this->symbolTable.isDefined(label);
-   // std::cout << "HEREEEEEEEEE:111111111111" << std::endl;
-    // std::cout << "HEREEEEEEEEE: !this->symbolTable.contains(label) "<< !this->symbolTable.contains(label) << std::endl;
-    // std::cout << "HEREEEEEEEEE: isDefinition "<< isDefinition << std::endl;
 
     if(isDefinition) {
-        if(isDefined) throw ("Semantic Error at line %d: Already Exists", this->currentLine);
+        if(isDefined) {
+            error = "Semantic Error at line " + std::to_string(this->currentLine) + "Label " + label +" already exists";
+            std::cout << error << std::endl;
+            throw error;
+        }
     } 
-
     this->symbolTable.adds(label, addressLabelDef, isDefinition, {labelAddress});
-    
     if(isDefined) {
         std::string addressToReplace = this->symbolTable.getsAddressValue(label);
         this->updatesAssembledCodeAtAddress(addressToReplace);
@@ -121,7 +119,10 @@ void Assembler::operatesLabelsForLine(
         for (size_t i = 0; i < labelsTuple.size(); i++) {
             try{
                 std::tuple <std::string, std::string, bool, std::string> currentTuple = labelsTuple[i];
-                // std::cout <<"PROCESSED LABEL: " << std::get<0>(currentTuple) <<"\t" << std::get<1>(currentTuple)  <<"\t" << std::get<2>(currentTuple) << std::endl;
+                
+                // std::cout <<"PROCESSED LABEL: " << std::get<0>(currentTuple) <<"\t" 
+                // << std::get<1>(currentTuple)  <<"\t" << std::get<2>(currentTuple)
+                // <<"\t" << std::get<3>(currentTuple) << std::endl;
                 this->operatesLabel(
                     std::get<0>(currentTuple),
                     std::get<1>(currentTuple),
@@ -134,8 +135,6 @@ void Assembler::operatesLabelsForLine(
 
         }
     }
-    std::cout << "\t\t\tTABLE LINE ADDEDDDDD "<< std::endl;
-    this->symbolTable.printTable();
 }
       
 void Assembler::resetLineOperands() {
@@ -150,13 +149,13 @@ void Assembler::resetLineOperands() {
 }
 
 void Assembler::updateCurrentLineAddress() {
-    std::cout << "this->sizeOfLine    \t" << this->sizeOfLine <<std::endl;
-    std::cout << "this->currentAddress    \t" << this->currentAddress <<std::endl;
+    // std::cout << "this->sizeOfLine    \t" << this->sizeOfLine <<std::endl;
+    // std::cout << "this->currentAddress    \t" << this->currentAddress <<std::endl;
         //TODO CHECK HOW TO UPDATE ADDRESS
     if(this->sizeOfLine <=3 && this->sizeOfLine > 0) {
         int vectorSpace = stoi(this->vectorSpace);
         int addressToSum = stoi(this->currentAddress);
-        std::cout << "vectorSpace    \t" << vectorSpace <<std::endl;
+        // std::cout << "vectorSpace    \t" << vectorSpace <<std::endl;
     
         if(vectorSpace > 0 ){
             addressToSum += vectorSpace;
@@ -164,29 +163,36 @@ void Assembler::updateCurrentLineAddress() {
             addressToSum += this->instructToSizeInMemory[this->instruction];
         }
         
-        std::cout << "addressToSum    \t" << addressToSum <<std::endl;
+        // std::cout << "addressToSum    \t" << addressToSum <<std::endl;
         this->currentAddress = std::to_string(addressToSum);
     }
 }
 
 void Assembler::processLineRead() {
     // TODO: processLineRead
-    bool isAlreadyDefined = this->symbolTable.isDefined(this->labelDef);
     this->operatesLabelsForLine(this->labelDef, this->arg1, this->arg2);
     // this->operatesInstruction();
-    if( isAlreadyDefined ) {
-        throw ("Semantic Exception at line %d", this->currentLine);
-    }
-         
+             
 }
 
 void Assembler::printsCurrentLine() {
+    uint16_t howManyTabsBetweenInstrArgs = 1;
+
     std::cout << "\tLine:" << this->currentLine
     << "\tAddress:" << this->currentAddress 
     << "\tlabelDef:[" << this->labelDef <<"]"
-    << "\tinstruction:" << this->instruction 
-    << "\targ1:" << this->arg1
-    << "\targ2:" << this->arg2 << std::endl;
+    << "\tinstruction:" << this->instruction  << "   "
+    << "\targ1:" << this->arg1 << "     "
+    << "arg2:" << this->arg2 << std::endl;
+}
+
+void Assembler::setsSizeLine() {
+    // std::cout << "HEREEEEEEEEEEEEEE" << std::endl;
+    if(this->vectorSpace != "0") {
+        this->sizeOfLine = stoi(this->vectorSpace);
+    } else{
+        this->sizeOfLine = this->instructToSizeInMemory[this->instruction];
+    }
 }
 
 void Assembler::onePassAlgorithm(){
@@ -200,7 +206,8 @@ void Assembler::onePassAlgorithm(){
             this->getCommentsAtLine();
             this->getLabelDefAtLine();
             this->getInstructionAtLine();
-            this->sizeOfLine =  this->instructToSizeInMemory[this->instruction];
+
+            this->setsSizeLine();
             this->getArgsAtLine();
 
             this->printsCurrentLine();
@@ -312,17 +319,24 @@ void Assembler::getInstructionAtLine() {
     } else {
         this->currentLineReading = this->fromSplit.at(0);
     }
+    // std::cout << "currentLineReading    \t" << this->currentLineReading <<std::endl;
+    // std::cout << "instruction    \t" << this->instruction <<std::endl;
     // std::cout << "INSTRUCTION:\t fromSplit    \t" << getListAsString(this->fromSplit) << "\tSIZE LIST: " << fromSplit.size() <<std::endl;
     this->currentLineReading = removeAllSpaces(this->currentLineReading);
-    
 }
 
 void Assembler::getArgsAtLine() {
     this->numberOfArgs = this->sizeOfLine - 1;
     bool isCONST = this->instruction == "CONST";
+    bool isSPACE = this->instruction == "SPACE";
+//  std::cout << "ARGS:\t numberOfArgs    \t" << this->numberOfArgs <<std::endl;
+    bool shouldReadArgs = !isSPACE && 
+    (isCONST || (this->numberOfArgs != 0 && this->numberOfArgs < 3));
 
-    if(isCONST || (this->numberOfArgs != 0 && this->numberOfArgs < 3)) {
-        // std::cout << "ARGS:\t numberOfArgs    \t" << this->numberOfArgs <<std::endl;
+    // std::cout << "ARGS:\t this->currentLineReading    \t" << this->currentLineReading <<std::endl;
+ 
+    if(shouldReadArgs) {
+        
         this->fromSplit = split(this->currentLineReading, ',');
         // std::cout << "ARGS:\t fromSplit    \t" << getListAsString(this->fromSplit) << "\tSIZE LIST: " << fromSplit.size() <<std::endl;
 

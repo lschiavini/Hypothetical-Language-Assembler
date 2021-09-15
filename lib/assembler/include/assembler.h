@@ -69,7 +69,7 @@ class Assembler {
         std::fstream * assembledCode;
 
 
-        uint16_t currentLine = 0;
+        uint16_t currentLine = 1;
         std::string currentAddress = "0";
         std::string currentToken = "";        
 
@@ -105,6 +105,7 @@ class Assembler {
         void getCommentsAtLine();
         void getInstructionAtLine();
         void setsSizeVectorSpace(std::string strToBeSearched);
+        void setsSizeLine();
         void getArgsAtLine();
 
         void updateCurrentLineAddress();
