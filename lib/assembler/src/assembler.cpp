@@ -178,7 +178,6 @@ void Assembler::resetLineOperands() {
 void Assembler::updateCurrentLineAddress() {
     // std::cout << "this->sizeOfLine    \t" << this->sizeOfLine <<std::endl;
     // std::cout << "this->currentAddress    \t" << this->currentAddress <<std::endl;
-        //TODO CHECK HOW TO UPDATE ADDRESS
     if(this->sizeOfLine <=3 && this->sizeOfLine > 0) {
         int vectorSpace = stoi(this->vectorSpace);
         int addressToSum = stoi(this->currentAddress);
@@ -253,6 +252,7 @@ void Assembler::onePassAlgorithm(){
 }
 
 void Assembler::getLabelDefAtLine() {
+    if (this->currentLineReading.empty()) return;
     bool foundLabel = false;
     this->fromSplit = split(this->currentLineReading, ':');
     foundLabel = this->fromSplit.size() > 1;
@@ -270,8 +270,6 @@ void Assembler::getLabelDefAtLine() {
 void Assembler::getCommentsAtLine() {
     this->fromSplit = split(this->currentLineReading, ';');
     this->currentLineReading = this->fromSplit.at(0);
-    // std::cout << "currentLineReading    \t" << this->currentLineReading <<std::endl;
-    
 }
 
 void Assembler::setsSizeVectorSpace(std::string strToBeSearched) {
@@ -290,6 +288,7 @@ void Assembler::setsSizeVectorSpace(std::string strToBeSearched) {
 }
 
 void Assembler::getInstructionAtLine() {
+    if (this->currentLineReading.empty()) return;
     bool instructionFound = false;
     bool isSPACE = false;
     bool isSECTION = false;
@@ -338,6 +337,7 @@ void Assembler::getInstructionAtLine() {
 }
 
 void Assembler::getArgsAtLine() {
+    if (this->currentLineReading.empty()) return;
     this->numberOfArgs = this->sizeOfLine - 1;
     bool isCONST = this->instruction == "CONST";
     bool isSPACE = this->instruction == "SPACE";

@@ -116,7 +116,7 @@ class Assembler {
             bool isValidInstruction(std::string token);
             void validateLabel(std::string token);
             void validateInstruction(std::string token);
-            void semanticValidator();
+            void semanticValidator(); // TODO semanticValidator
             // END VERIFIERS
 
         
