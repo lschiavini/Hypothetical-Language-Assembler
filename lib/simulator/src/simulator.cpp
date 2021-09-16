@@ -53,16 +53,16 @@ void Simulator::execute() {
         arg1 = this->safeSTOI(std::get<2>(currLine));
         arg2 = this->safeSTOI(std::get<3>(currLine));
         if(instruction == "ADD") {
-            this->MEM = arg1;
+            this->MEM = this->safeSTOI(this->fileContents[arg1]);
             this->ACC = this->ACC + this->MEM;
         } else if(instruction == "SUB") {
-            this->MEM = arg1;
+            this->MEM = this->safeSTOI(this->fileContents[arg1]);
             this->ACC = this->ACC - this->MEM;
         }else if(instruction == "MULT") {
-            this->MEM = arg1;
+            this->MEM = this->safeSTOI(this->fileContents[arg1]);
             this->ACC = this->ACC * this->MEM;
         }else if(instruction == "DIV") {
-            this->MEM = arg1;
+            this->MEM = this->safeSTOI(this->fileContents[arg1]);
             this->ACC = this->ACC / this->MEM;
         }else if(instruction == "JMP") {
             this->PC = arg1;
@@ -75,10 +75,10 @@ void Simulator::execute() {
         }else if(instruction == "COPY") {
             this->fileContents[arg2] = this->fileContents[arg1];
         }else if(instruction == "LOAD") {
-            std::cout << "AAAAAAAAAAA " << this->fileContents[arg1] << std::endl;
             this->ACC = this->safeSTOI(this->fileContents[arg1]);
         }else if(instruction == "STORE") {
-            this->fileContents[arg1] = this->ACC;
+            std::string toSave = std::to_string(this->ACC);
+            if(!toSave.empty()) this->fileContents[arg1] = toSave;
         }else if(instruction == "INPUT") {
             std::string userInput = "";
             std::cout << "Type a number: ";
@@ -88,11 +88,17 @@ void Simulator::execute() {
             std::string userInput = "";
             this->OUTPUT = this->fileContents[arg1];
             std::cout  << "OUTPUT : " << this->OUTPUT << " " <<std::endl;
-            std::cout << "Type a Enter ";
-            std::cin >> userInput;
+            std::cout << '\n' << "Type Enter to continue...";
+            std::cin.get();
         }else if(instruction == "STOP") {
             this->reachedSTOP = true;
         }
+
+        if((instruction != "JMP") ||
+        (instruction != "JMPN") ||
+        (instruction != "JMPP") ||
+        (instruction != "JMPZ")) this->PC += this->instructToSizeInMemory[instruction];
+
         this->printCurrentOperation();
     }
 }
