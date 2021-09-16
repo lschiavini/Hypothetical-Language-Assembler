@@ -2,13 +2,17 @@
 #ifndef SIMULATOR_H
 #define SIMULATOR_H
 
+
+#include <stringUtils.h>
 #include <fstream>
+#include <istream>
+#include <ostream>
 #include <string>
 #include <vector>
 #include <tuple>
+#include <iostream>
+#include <sstream>
 #include <map>
-#include <fstream>
-#include <stringUtils.h>
 
 
 typedef std::vector< std::string> ListOfStrings;
@@ -35,8 +39,9 @@ class Simulator {
 
     private:
         uint16_t PC = 0;
-        uint16_t ACC = 0;
-        uint16_t MEM = 0;
+        int ACC = 0;
+        int MEM = 0;
+        std::string OUTPUT = "";
         bool reachedSTOP = false;
         
         OpCodeToInstruction opcodeToInstruction = {
@@ -73,15 +78,16 @@ class Simulator {
             {"OUTPUT", 2},
             {"STOP", 1},
             {"SPACE", 1},
-            {"CONST", 1}
+            {"CONST", 1},
+            {"NULL", -1}
         };  
 
-        std::string fileContentsStrint;
-        ListOfStrings fileContents;
-        FileLines fileLines;
+        std::string fileContentsStrint = "";
+        ListOfStrings fileContents = {};
+        FileLines fileLines = {};
 
-        std::string fileName;
-        std::string fileDir;
+        std::string fileName = "";
+        std::string fileDir = "";
         std::fstream input;
         void setFileContents();
         void setFileLines();
@@ -94,6 +100,8 @@ class Simulator {
         );
         
         void execute();
+        void printCurrentOperation();
+        int safeSTOI(std::string stringToParse);
 
 
 };

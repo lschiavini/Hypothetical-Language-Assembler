@@ -1,0 +1,1 @@
+Roda do mesmo jeito que anteriormente, com .asm mesmo pq nao deu tempo!!!

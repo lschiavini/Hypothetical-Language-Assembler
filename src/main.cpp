@@ -19,12 +19,12 @@ int main(int argc, char ** argv)
 
     // printFile(&sourceCode);
 
-    Assembler myAssembler(&sourceCode, fileName);
-    myAssembler.assembleFile();
+    // Assembler myAssembler(&sourceCode, fileName);
+    // myAssembler.assembleFile();
 
-    // if(myAssembler.canSimulate || true) {
-    // Simulator mySim(fileName);
-    // mySim.simulate();
+    // if(myAssembler.canSimulate) {
+    Simulator mySim(fileName);
+    mySim.simulate();
     // }
 
     std::cout << "End of Show"<< std::endl;
