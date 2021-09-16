@@ -54,7 +54,8 @@ class Simulator {
             {"11", "STORE"},
             {"12", "INPUT"},
             {"13", "OUTPUT"},
-            {"14", "STOP"}
+            {"14", "STOP"},
+            {"15", "NULL"}
         };
         DirectiveToNumber instructToSizeInMemory = { // shows Number of arguments valueMap.second-1 
             {"ADD", 2},
@@ -91,6 +92,8 @@ class Simulator {
             std::string arg1,
             std::string arg2
         );
+        
+        void execute();
 
 
 };

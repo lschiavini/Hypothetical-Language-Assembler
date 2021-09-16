@@ -19,6 +19,11 @@ void Simulator::simulate() {
     this->setFileContents();
     this->setFileLines();
     this->printFileLines();
+    this->execute();
+}
+
+void Simulator::execute() {
+    // if()
 }
 
 void Simulator::setFileContents() {
@@ -40,15 +45,16 @@ void Simulator::setFileLines() {
     std::string arg2 = "";
     bool isCONST = false;
 
-    for(int i = 0; i < this->fileContents.size() ; i++) {
+    for(int i = 0; i <= this->fileContents.size() ; i++) {
+        i = pc;
         isCONST = false;
         if(instruction == "STOP") isCONST = true;
         instruction = "";
         arg1 = "";
         arg2 = "";
         
-        // std::cout << "line at position = "<< i <<std::endl;
-        // std::cout << "this->fileContents[i] = "<< this->fileContents[i] <<std::endl;
+        std::cout << "line at position = "<< i <<std::endl;
+        std::cout << "this->fileContents[i] = "<< this->fileContents[i] <<std::endl;
 
 
         if(isCONST) {
@@ -56,24 +62,28 @@ void Simulator::setFileLines() {
             arg1 = "";
             arg2 = "";
             i+=1;
-        }
-        else if(this->opcodeToInstruction.find(this->fileContents[i]) != this->opcodeToInstruction.end()) {
+        } else if(this->opcodeToInstruction.find(this->fileContents[i]) != this->opcodeToInstruction.end()) {
             instruction = this->opcodeToInstruction[this->fileContents[i]];
-            // std::cout << "instruction = "<< instruction <<std::endl;
             uint16_t numOfArgs = this->instructToSizeInMemory[instruction] - 1;
-            for(int j = 1; j <=  numOfArgs; j++) {
-                if(j == 1) arg1 = this->fileContents[i + j];
-                else {
-                    arg2 = this->fileContents[i + j];
-                }                
-                std::cout << "j = "<< j <<std::endl;
+            std::cout << "numOfArgs = "<< numOfArgs <<std::endl;
+            i+= 1;
+
+            if(numOfArgs > 0) {
+                for(int j = 0; j <  numOfArgs; j++) {
+                    if(j == 0) arg1 = this->fileContents[j+i];
+                    else {
+                        arg2 = this->fileContents[j+i];
+                    }
+                }
+                i+= numOfArgs;
             }
-            i+= numOfArgs;
-            // std::cout << "numOfArgs = "<< numOfArgs <<std::endl;
-            // std::cout << "arg1 = "<< arg1 <<std::endl;
-            // std::cout << "arg2 = "<< arg2 <<std::endl;
-            // std::cout << "i = "<< i <<std::endl;
+            
+            std::cout << "i HERE = "<< i <<std::endl;
         }
+        std::cout << "instruction = "<< instruction <<std::endl;
+        std::cout << "arg1 = "<< arg1 <<std::endl;
+        std::cout << "arg2 = "<< arg2 <<std::endl;
+        std::cout << "i = "<< i <<std::endl;
         
         this->fileLines[pc] = make_tuple(
             pc,
@@ -81,15 +91,15 @@ void Simulator::setFileLines() {
             arg1,
             arg2
         );
-        this->printTuple(
-            pc,
-            instruction,
-            arg1,
-            arg2
-        );
-        
+        // this->printTuple(
+        //     pc,
+        //     instruction,
+        //     arg1,
+        //     arg2
+        // );
         pc = i;
         
+        std::cout << "pc = "<< pc <<std::endl;
     }
 }
 
@@ -113,8 +123,7 @@ void Simulator::printFileLines() {
     std::string instruction = "";
     std::string arg1 = "";
     std::string arg2 = "";
-    while(it != this->fileLines.end()) {
-        
+    do {
         uint16_t key = it->first;
         AddressOpcodeArgsLine currentLine = it->second;
         pc = std::get<0>(currentLine);
@@ -127,7 +136,6 @@ void Simulator::printFileLines() {
             arg1,
             arg2
         );
-        
         it++;
-    }
+    } while(it != this->fileLines.end());
 }
